@@ -1,0 +1,174 @@
+#include "inc/robot_config.h"
+
+#include <arduino.h>
+
+#include "inc/driver_adc.h"
+
+#define ADC_CHANNEL_COUNT 5
+typedef struct 
+{
+    int16_t value[ADC_CHANNEL_COUNT];
+} ADCValues_t;
+
+
+
+static ADCValues_t adcBuffer[2];
+
+// Buffer currently used by SAADC
+static volatile uint8_t adcWriteBuffer = 0;
+
+// Buffer containing the last completed sample
+static volatile uint8_t adcReadBuffer = 1;
+
+// Set when a new buffer is available
+static volatile bool adcDataReady = false;
+
+
+extern "C" void SAADC_IRQHandler_(void)
+{
+    if (NRF_SAADC->EVENTS_END)
+    {
+        NRF_SAADC->EVENTS_END = 0;
+
+        // The buffer which has just been completed
+     /*   uint8_t completedBuffer = adcWriteBuffer;
+
+        // Switch to the other buffer
+        adcWriteBuffer ^= 1;
+*/
+        // Tell SAADC where the next DMA data goes
+        NRF_SAADC->RESULT.PTR =
+            (uint32_t)&adcBuffer[0]; //adcWriteBuffer];
+
+       NRF_SAADC->RESULT.MAXCNT = ADC_CHANNEL_COUNT;
+
+        // Make completed buffer available to main code
+      //  adcReadBuffer = completedBuffer;
+       // adcDataReady = true;
+
+      NRF_SAADC->TASKS_START = 1;
+
+    }
+}
+
+
+
+void Driver_adc::init()
+{
+
+    // Stop SAADC
+    NRF_SAADC->TASKS_STOP = 1;
+
+    // --------------------------------------------------------
+    // Channel 0 -> AIN0 / P0.02
+    // --------------------------------------------------------
+
+ 
+
+    this->init_channel(0, SAADC_CH_PSELP_PSELP_AnalogInput0);
+    this->init_channel(1, SAADC_CH_PSELP_PSELP_AnalogInput1);
+    this->init_channel(2, SAADC_CH_PSELP_PSELP_AnalogInput2);
+    this->init_channel(3, SAADC_CH_PSELP_PSELP_AnalogInput4);
+    this->init_channel(4, SAADC_CH_PSELP_PSELP_AnalogInput5);
+
+//7 battery
+
+    // --------------------------------------------------------
+    // SAADC configuration
+    // --------------------------------------------------------
+
+    NRF_SAADC->RESOLUTION =
+        SAADC_RESOLUTION_VAL_12bit;
+
+    NRF_SAADC->OVERSAMPLE =
+        SAADC_OVERSAMPLE_OVERSAMPLE_Bypass;
+
+    NRF_SAADC->RESULT.PTR =
+        (uint32_t)&adcBuffer[0];
+
+    NRF_SAADC->RESULT.MAXCNT =       ADC_CHANNEL_COUNT;
+
+
+    // --------------------------------------------------------
+    // Interrupt
+    // --------------------------------------------------------
+
+    NRF_SAADC->INTENSET =
+        SAADC_INTENSET_END_Msk;
+
+
+    uint32_t *vectors = (uint32_t *)SCB->VTOR;
+   // set vector in interupt table for Timer3 Handler
+    vectors[16 + SAADC_IRQn] = (uint32_t)SAADC_IRQHandler_;
+
+    __DSB();
+    __ISB();
+
+
+
+
+    NVIC_ClearPendingIRQ(SAADC_IRQn);
+    NVIC_SetPriority(SAADC_IRQn, 4);
+    NVIC_EnableIRQ(SAADC_IRQn);
+
+
+    // --------------------------------------------------------
+    // Enable SAADC
+    // --------------------------------------------------------
+
+    NRF_SAADC->ENABLE = 1;
+
+    // Start SAADC
+    NRF_SAADC->TASKS_START = 1;
+
+    // Wait until started
+    while (!NRF_SAADC->EVENTS_STARTED)
+    {
+    }
+
+    NRF_SAADC->EVENTS_STARTED = 0;
+
+
+
+
+
+    digitalWrite(13,HIGH); //GR*/
+    
+    Serial.println ("adc driver");
+}
+
+void Driver_adc::adc_sample()
+{
+    NRF_SAADC->TASKS_SAMPLE = 1;
+}
+
+
+
+
+void Driver_adc::init_channel(uint8_t adc_channel, uint8_t analog_input)
+{
+    NRF_SAADC->CH[adc_channel].PSELP =analog_input;
+      
+
+    NRF_SAADC->CH[adc_channel].PSELN =
+        SAADC_CH_PSELN_PSELN_NC;
+
+    NRF_SAADC->CH[adc_channel].CONFIG =
+        SAADC_CH_CONFIG_RESP_Bypass |
+        SAADC_CH_CONFIG_RESN_Bypass |
+        SAADC_CH_CONFIG_GAIN_Gain1_6 |
+        SAADC_CH_CONFIG_REFSEL_Internal |
+        SAADC_CH_CONFIG_TACQ_10us |
+        SAADC_CH_CONFIG_MODE_SE |
+        SAADC_CH_CONFIG_BURST_Disabled;
+}
+
+uint16_t Driver_adc::get(uint8_t channel)
+{
+    return (adcBuffer[0].value[channel]);
+}
+
+void Driver_adc::process()
+{
+     
+}
