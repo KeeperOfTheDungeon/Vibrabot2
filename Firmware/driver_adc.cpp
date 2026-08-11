@@ -24,33 +24,6 @@ static volatile uint8_t adcReadBuffer = 1;
 static volatile bool adcDataReady = false;
 
 
-extern "C" void SAADC_IRQHandler_(void)
-{
-    if (NRF_SAADC->EVENTS_END)
-    {
-        NRF_SAADC->EVENTS_END = 0;
-
-        // The buffer which has just been completed
-     /*   uint8_t completedBuffer = adcWriteBuffer;
-
-        // Switch to the other buffer
-        adcWriteBuffer ^= 1;
-*/
-        // Tell SAADC where the next DMA data goes
-        NRF_SAADC->RESULT.PTR =
-            (uint32_t)&adcBuffer[0]; //adcWriteBuffer];
-
-       NRF_SAADC->RESULT.MAXCNT = ADC_CHANNEL_COUNT;
-
-        // Make completed buffer available to main code
-      //  adcReadBuffer = completedBuffer;
-       // adcDataReady = true;
-
-      NRF_SAADC->TASKS_START = 1;
-
-    }
-}
-
 
 
 void Driver_adc::init()
@@ -96,49 +69,24 @@ void Driver_adc::init()
     NRF_SAADC->INTENSET =
         SAADC_INTENSET_END_Msk;
 
-
-    uint32_t *vectors = (uint32_t *)SCB->VTOR;
-   // set vector in interupt table for Timer3 Handler
-    vectors[16 + SAADC_IRQn] = (uint32_t)SAADC_IRQHandler_;
-
-    __DSB();
-    __ISB();
-
-
-
-
-    NVIC_ClearPendingIRQ(SAADC_IRQn);
-    NVIC_SetPriority(SAADC_IRQn, 4);
-    NVIC_EnableIRQ(SAADC_IRQn);
-
-
-    // --------------------------------------------------------
-    // Enable SAADC
-    // --------------------------------------------------------
-
     NRF_SAADC->ENABLE = 1;
 
     // Start SAADC
     NRF_SAADC->TASKS_START = 1;
 
-    // Wait until started
-    while (!NRF_SAADC->EVENTS_STARTED)
-    {
-    }
-
     NRF_SAADC->EVENTS_STARTED = 0;
-
-
-
-
-
-    digitalWrite(13,HIGH); //GR*/
-    
-    Serial.println ("adc driver");
 }
+
+
 
 void Driver_adc::adc_sample()
 {
+    NRF_SAADC->RESULT.PTR = (uint32_t)&adcBuffer[0]; //adcWriteBuffer];
+
+    NRF_SAADC->RESULT.MAXCNT = ADC_CHANNEL_COUNT;
+
+    NRF_SAADC->TASKS_START = 1;
+
     NRF_SAADC->TASKS_SAMPLE = 1;
 }
 

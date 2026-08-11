@@ -4,6 +4,7 @@
 #include "inc/main_timer.h"
 
 #include "inc/led.h"
+#include "inc/ble.h"
 #include "inc/light_sensor.h"
 #include "inc/driver_led.h"
 #include "inc/driver_adc.h"
@@ -21,6 +22,7 @@ Led led;
 Main_timer system_clock;
 Driver_led driver_led;
 Driver_adc driver_adc;
+Ble ble;
 
 void setup() {
   Serial.begin(115200); 
@@ -28,7 +30,7 @@ void setup() {
   Serial.println ("init");
 
 
-
+  Serial.println ("complette");
   // Pin als Ausgang für Sicherheit (GPIO)
  // pinMode(9, OUTPUT);  // Wenn D9 wirklich P0.27 ist; sonst anpassen
   pinMode(11, OUTPUT);
@@ -49,6 +51,8 @@ void setup() {
 //  pwm_init_registers();
    driver_led.init();
   driver_adc.init();
+   ble.init() ;
+  Serial.println ("init complete");
 }
 
 
@@ -76,8 +80,7 @@ void process_analog_data()
 
 
 void loop() {
-//  led.on();
-
+ 
     if (system_clock.get_tick())
     {
       system_clock.clear_tick();
@@ -85,9 +88,10 @@ void loop() {
       switch (a)
       {
       case 1:
-        
+          Serial.println ("sample");
         //  digitalWrite(1,HIGH);
           driver_adc.adc_sample();
+          Serial.println ("sample ready");
         break;
        
        case 10:
@@ -100,7 +104,20 @@ void loop() {
             Serial.print (" : ");
             Serial.print ("l : ");
             Serial.println (right_light_sensor.get_intensity());
+            
+            uint16_t value;
+            value = left_light_sensor.get_intensity();
+            bool succes = ble.sendDataBlock((uint8_t*)&value, 2);
+            if (succes)
+            {
+                 Serial.println ("succes");
+            }
+            else
+            {
+                 Serial.println ("fail");
+            }
             break;
+
       }
 
      
@@ -111,4 +128,31 @@ void loop() {
      //delay(200);
 
     }
+}
+
+
+
+void HardFault_Handler(void)
+{
+    volatile uint32_t hfsr  = SCB->HFSR;
+    volatile uint32_t cfsr  = SCB->CFSR;
+    volatile uint32_t mmfar = SCB->MMFAR;
+    
+    volatile uint32_t bfar  = SCB->BFAR;
+
+    Serial.println("HARDFAULT");
+
+    Serial.print("HFSR: 0x");
+    Serial.println(hfsr, HEX);
+
+    Serial.print("CFSR: 0x");
+    Serial.println(cfsr, HEX);
+
+    Serial.print("MMFAR: 0x");
+    Serial.println(mmfar, HEX);
+
+    Serial.print("BFAR: 0x");
+    Serial.println(bfar, HEX);
+
+    while (1);
 }

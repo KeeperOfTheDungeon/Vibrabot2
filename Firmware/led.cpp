@@ -14,13 +14,14 @@ bool Led::get_status()
 {
     if (led.mode == LED_MODE_OFF)
         return false;
-
+   
+   return true;
 }
 
 
 uint8_t Led::get_mode()
 {
-
+    return(0);
 }
 
 void Led::process()
