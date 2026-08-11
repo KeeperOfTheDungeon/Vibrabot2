@@ -1,6 +1,10 @@
+import asyncio
 import pygame
 import math
 import numpy as np
+from ble.ble import Ble
+import threading
+import queue
 
 # ----------------------------
 # Einstellungen
@@ -27,6 +31,8 @@ class Robot:
 
         self.speed_left = 0
         self.speed_right = 0
+        
+
 
     def update(self, obstacles):
 
@@ -144,84 +150,98 @@ class Robot:
 # Welt
 # ----------------------------
 
-pygame.init()
+rx_queue = queue.Queue()
+tx_queue = queue.Queue()
 
-screen = pygame.display.set_mode(
-    (WIDTH, HEIGHT)
-)
+async def main():
 
-clock = pygame.time.Clock()
+    ble = Ble(rx_queue,tx_queue)
+   
 
+    pygame.init()
 
-obstacles = [
-    pygame.Rect(300,200,100,40),
-    pygame.Rect(500,400,150,50),
-    pygame.Rect(200,450,80,80)
-]
+    screen = pygame.display.set_mode(
+        (WIDTH, HEIGHT)
+    )
 
+  #  asyncio.create_task(ble_task())
 
-robot = Robot(100,100)
-
-
-# ----------------------------
-# Hauptschleife
-# ----------------------------
-
-running = True
-
-while running:
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running=False
+    clock = pygame.time.Clock()
 
 
-    # Teststeuerung
-    keys = pygame.key.get_pressed()
-
-    robot.speed_left = 0
-    robot.speed_right = 0
-
-    if keys[pygame.K_UP]:
-        robot.speed_left = 3
-        robot.speed_right = 3
-
-    if keys[pygame.K_LEFT]:
-        robot.speed_left = -1
-        robot.speed_right = 3
-
-    if keys[pygame.K_RIGHT]:
-        robot.speed_left = 3
-        robot.speed_right = -1
+    obstacles = [
+        pygame.Rect(300,200,100,40),
+        pygame.Rect(500,400,150,50),
+        pygame.Rect(200,450,80,80)
+    ]
 
 
-    robot.update(obstacles)
+    robot = Robot(100,100)
 
 
-    # Sensorwerte
-    s = robot.sensors(obstacles)
+    # ----------------------------
+    # Hauptschleife
+    # ----------------------------
 
-    print(s)
+    running = True
 
+    while running:
 
-    # Zeichnen
-    screen.fill((30,30,30))
-
-
-    for rect in obstacles:
-        pygame.draw.rect(
-            screen,
-            (150,50,50),
-            rect
-        )
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running=False
 
 
-    robot.draw(screen)
+        # Teststeuerung
+        keys = pygame.key.get_pressed()
+
+        robot.speed_left = 0
+        robot.speed_right = 0
+
+        if keys[pygame.K_UP]:
+            robot.speed_left = 3
+            robot.speed_right = 3
+
+        if keys[pygame.K_LEFT]:
+            robot.speed_left = -1
+            robot.speed_right = 3
+
+        if keys[pygame.K_RIGHT]:
+            robot.speed_left = 3
+            robot.speed_right = -1
 
 
-    pygame.display.flip()
-
-    clock.tick(FPS)
+        robot.update(obstacles)
 
 
-pygame.quit()
+        # Sensorwerte
+        s = robot.sensors(obstacles)
+
+    # print(s)
+
+
+        # Zeichnen
+        screen.fill((30,30,30))
+
+
+        for rect in obstacles:
+            pygame.draw.rect(
+                screen,
+                (150,50,50),
+                rect
+            )
+
+
+        robot.draw(screen)
+
+
+        pygame.display.flip()
+
+        clock.tick(FPS)
+        await asyncio.sleep(0)
+
+        print("get : ",rx_queue.get())
+
+    pygame.quit()
+
+asyncio.run(main())    
