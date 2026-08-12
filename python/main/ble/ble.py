@@ -57,33 +57,28 @@ class Ble:
 
         print(f"Found {device.name}: {device.address}")
 
-        try:
-                async with BleakClient(
-                    device,
-                    disconnected_callback=self.disconnected_callback
-                ) as client:
 
-                
-                    print("Connected")
+        async with BleakClient(
+            device,
+            disconnected_callback=self.disconnected_callback
+        ) as client:
+            self.client = client
+        
+            print("Connected")
 
-                    await client.start_notify(
-                        TX_UUID,
-                        self.notification_handler
-                    )
+            await client.start_notify(
+                TX_UUID,
+                self.notification_handler
+            )
 
-                    print("Waiting for data...")
-                    print("Press Ctrl+C to stop")
 
-                    while client.is_connected:
-                        print("connected =", client.is_connected)
-                        await asyncio.sleep(1)
+            while client.is_connected:
+                await asyncio.sleep(1)
 
-                    print("Connection lost")
+            print("Connection lost")
 
-        except Exception as e:
-            print("BLE CONNECT ERROR:", repr(e))
+        self.client = None
 
-            print("connect() finished")
 
 
     def notification_handler(self, sender, data):
@@ -94,7 +89,3 @@ class Ble:
     def disconnected_callback(self,client):
         print("!!! BLE DISCONNECTED !!!")
     
-
-
-    # If you want the data as a Python bytes object:
-    # data is already bytes

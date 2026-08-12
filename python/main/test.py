@@ -1,4 +1,6 @@
 import asyncio
+from hardware.light_sensor import Light_sensor
+from view.view_light_sensor import view_light_sensor
 import pygame
 import math
 import numpy as np
@@ -177,7 +179,12 @@ async def main():
 
 
     robot = Robot(100,100)
+# light sensor
+    ls = Light_sensor("left eye")
+    ls2 = Light_sensor("right eye")
 
+    light_sensor_view = view_light_sensor(ls)
+    light2_sensor_view = view_light_sensor(ls2)
 
     # ----------------------------
     # Hauptschleife
@@ -218,7 +225,7 @@ async def main():
         s = robot.sensors(obstacles)
 
     # print(s)
-
+     
 
         # Zeichnen
         screen.fill((30,30,30))
@@ -233,14 +240,34 @@ async def main():
 
 
         robot.draw(screen)
+        pygame.draw.circle(screen, (0,200,0),((300, 300)), 4 )
+
+        light_sensor_view.draw();
+        screen.blit(light_sensor_view, (450, 100))
 
 
+        light2_sensor_view.draw();
+        screen.blit(light2_sensor_view, (450, 400))
+
+
+    
         pygame.display.flip()
 
         clock.tick(FPS)
         await asyncio.sleep(0)
 
-        print("get : ",rx_queue.get())
+    ###### FiFO
+
+        data = rx_queue.get()
+        value = int.from_bytes(data[0:2], byteorder='little')
+        f = float(value)/4906
+        ls.set_intensity(f )  
+
+        value = int.from_bytes(data[2:4], byteorder='little')
+        f = float(value)/4906
+        ls2.set_intensity(f )  
+
+
 
     pygame.quit()
 

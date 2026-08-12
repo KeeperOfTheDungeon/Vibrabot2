@@ -79,6 +79,48 @@ void process_analog_data()
 }
 
 
+void send_data()
+{
+      uint16_t value[17];
+      value[0] = left_light_sensor.get_intensity();   // Light Sensor left
+      value[1] = right_light_sensor.get_intensity();  // Light Sensor right
+
+      value[2] = right_light_sensor.get_intensity();  // Color Sensor clear
+      value[3] = right_light_sensor.get_intensity();  // Color Sensor Red
+      value[4] = right_light_sensor.get_intensity();  // Color Sensor Green
+      value[5] = right_light_sensor.get_intensity();  // Color Sensor Blue
+      value[6] = right_light_sensor.get_intensity();  // Color Sensor IR
+
+      value[7] = right_light_sensor.get_intensity();  // Proximity Left
+      value[8] = right_light_sensor.get_intensity();  // Proximity center
+      value[9] = right_light_sensor.get_intensity();  // Proximity right
+
+      value[10] = right_light_sensor.get_intensity();  // Acc X
+      value[11] = right_light_sensor.get_intensity();  // Acc y
+      value[12] = right_light_sensor.get_intensity();  // Acc z
+
+      value[14] = right_light_sensor.get_intensity();  // Gyro X
+      value[15] = right_light_sensor.get_intensity();  // Gyro y
+      value[16] = right_light_sensor.get_intensity();  // Gyro z
+
+
+
+      bool succes = ble.sendDataBlock((uint8_t*)&value, 32);
+    
+    if (succes)
+    {
+      Serial.println ("succes");
+    }
+    else
+      {
+      Serial.println ("fail");
+      }
+    
+
+}
+
+
+
 void loop() {
  
     if (system_clock.get_tick())
@@ -105,18 +147,11 @@ void loop() {
             Serial.print ("l : ");
             Serial.println (right_light_sensor.get_intensity());
             
-            uint16_t value;
-            value = left_light_sensor.get_intensity();
-            bool succes = ble.sendDataBlock((uint8_t*)&value, 2);
-            if (succes)
-            {
-                 Serial.println ("succes");
-            }
-            else
-            {
-                 Serial.println ("fail");
-            }
-            break;
+            send_data();
+
+            break; 
+
+        
 
       }
 
