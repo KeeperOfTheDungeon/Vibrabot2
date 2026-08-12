@@ -8,7 +8,7 @@
 #include "inc/light_sensor.h"
 #include "inc/driver_led.h"
 #include "inc/driver_adc.h"
-
+#include "inc/veml3328.h"
 
 
 Light_sensor left_light_sensor;
@@ -23,7 +23,7 @@ Main_timer system_clock;
 Driver_led driver_led;
 Driver_adc driver_adc;
 Ble ble;
-
+Veml3328 colorSensor;
 void setup() {
   Serial.begin(115200); 
     delay(1000);
@@ -46,6 +46,8 @@ void setup() {
   left_ir_sensor.init();
   center_ir_sensor.init();
   right_ir_sensor.init();
+
+  colorSensor.init();
 
   system_clock.init();
 //  pwm_init_registers();
@@ -77,23 +79,30 @@ void process_analog_data()
 
 
 }
-
+#define PACKEGE_LIGHT_SENSOR_DATA 0xA0
 
 void send_data()
 {
-      uint16_t value[17];
-      value[0] = left_light_sensor.get_intensity();   // Light Sensor left
-      value[1] = right_light_sensor.get_intensity();  // Light Sensor right
+      uint16_t value[11];
+      value[0] = PACKEGE_LIGHT_SENSOR_DATA;
+      value[1] = left_light_sensor.get_intensity();   // Light Sensor left
+      value[2] = right_light_sensor.get_intensity();  // Light Sensor right
 
-      value[2] = right_light_sensor.get_intensity();  // Color Sensor clear
-      value[3] = right_light_sensor.get_intensity();  // Color Sensor Red
-      value[4] = right_light_sensor.get_intensity();  // Color Sensor Green
-      value[5] = right_light_sensor.get_intensity();  // Color Sensor Blue
-      value[6] = right_light_sensor.get_intensity();  // Color Sensor IR
-
-      value[7] = right_light_sensor.get_intensity();  // Proximity Left
-      value[8] = right_light_sensor.get_intensity();  // Proximity center
-      value[9] = right_light_sensor.get_intensity();  // Proximity right
+      value[3] = colorSensor.getIntensity(0);  // Color Sensor clear
+      value[4] = colorSensor.getIntensity(1);  // Color Sensor Red
+      value[5] = colorSensor.getIntensity(2);  // Color Sensor Green
+      value[6] = colorSensor.getIntensity(3);  // Color Sensor Blue
+      value[7] = colorSensor.getIntensity(4);  // Color Sensor IR
+      Serial.print ("co : ");
+      Serial.println(colorSensor.getIntensity(0));
+      Serial.print ("re : ");
+      Serial.println(colorSensor.getIntensity(1));
+      Serial.print ("gr : ");
+      Serial.println(colorSensor.getIntensity(2));
+/*
+      value[8] = right_light_sensor.get_intensity();  // Proximity Left
+      value[9] = right_light_sensor.get_intensity();  // Proximity center
+      value[10] = right_light_sensor.get_intensity();  // Proximity right
 
       value[10] = right_light_sensor.get_intensity();  // Acc X
       value[11] = right_light_sensor.get_intensity();  // Acc y
@@ -103,9 +112,9 @@ void send_data()
       value[15] = right_light_sensor.get_intensity();  // Gyro y
       value[16] = right_light_sensor.get_intensity();  // Gyro z
 
+*/
 
-
-      bool succes = ble.sendDataBlock((uint8_t*)&value, 32);
+      bool succes = ble.sendDataBlock((uint8_t*)&value, 16);
     
     if (succes)
     {
@@ -133,6 +142,8 @@ void loop() {
           Serial.println ("sample");
         //  digitalWrite(1,HIGH);
           driver_adc.adc_sample();
+          colorSensor.fetchData();
+
           Serial.println ("sample ready");
         break;
        

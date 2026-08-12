@@ -1,48 +1,75 @@
-import hardware.light_sensor
+import hardware.ColorSensor
 from view.SensorView import SensorView
 import pygame as pygame
 
-class view_light_sensor(SensorView):
-    def __init__(self, light_sensor):
-        super().__init__(200, 200,light_sensor.get_name())
-        self.light_sensor = light_sensor 
+class ViewColorSensor(SensorView):
+    def __init__(self, color_sensor):
+        super().__init__(200, 200,color_sensor.get_name())
+        self.color_sensor = color_sensor 
         pass
 
     def draw(self):
         super().draw()
 
 
-        pygame.draw.rect(self, (200,200,200),(9,50,128,128))
 
 
 
-        history = self.light_sensor.get_history()
-        values = list(history)
+        yPos = 30 
+        for index in range(0,5):
+            intensity = self.color_sensor.get_intensity(index)
+            intensity_string = f"{intensity:.3f}"
+            sensor_name = self.color_sensor.get_sensor_name(index)
 
-
-        for i in range(len(values) - 1):
-            value = values[i]
-            value = value * 128
-
-
-            pygame.draw.line(
-                self,
-                (0, 255, 0),
-                (10+i*2, int(180-value)),
-                (10+i*2+1, int(180-value))
+            text = self.font.render(
+                sensor_name,
+                True,
+                (255, 255, 255)
             )
+            self.blit(text, (10, yPos))
+
+            text = self.font.render(
+                " : "+intensity_string,
+                True,
+                (255, 255, 255)
+            )
+            self.blit(text, (50, yPos))
+
+            yPos = yPos + 20
 
 
+        red = self.color_sensor.get_intensity(1)
+        green = self.color_sensor.get_intensity(2)
+        blue = self.color_sensor.get_intensity(3)
 
+        print(red)
+        print(green)
+        print(blue)
 
-        intensity = self.light_sensor.get_intensity()
+        max_color = red
 
-        text = self.font.render(
-            str(intensity),
-            True,
-            (255, 255, 255)
-        )
+        if red < blue:
+            max_color = blue
+            
+        if  green > max_color:
+            max_color = green
 
-        self.blit(text, (10, 30))
+        if max_color == 0:
+            max_color = 0.001
+
+        print(max_color)
+
+        faktor = (1.0 / max_color) *100
+        
+        red = int (red * faktor)
+        green = int (green * faktor)
+        blue = int (blue * faktor)
+
+        print(faktor)
+        print(red)
+        print(green)
+        print(blue)
+        
+        pygame.draw.rect(self, (red,green,blue),(9,150,100,20))
 
 

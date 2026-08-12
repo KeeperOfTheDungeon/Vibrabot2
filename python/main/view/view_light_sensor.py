@@ -36,9 +36,9 @@ class view_light_sensor(SensorView):
 
 
         intensity = self.light_sensor.get_intensity()
-
+        intensity_string = f"{intensity:.3f}"
         text = self.font.render(
-            str(intensity),
+            intensity_string,
             True,
             (255, 255, 255)
         )

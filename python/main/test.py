@@ -1,5 +1,7 @@
 import asyncio
 from hardware.light_sensor import Light_sensor
+from hardware.ColorSensor import ColorSensor
+from view.ViewColorSensor import ViewColorSensor
 from view.view_light_sensor import view_light_sensor
 import pygame
 import math
@@ -155,6 +157,54 @@ class Robot:
 rx_queue = queue.Queue()
 tx_queue = queue.Queue()
 
+ls = Light_sensor("left eye")
+ls2 = Light_sensor("right eye")
+color_sensor = ColorSensor("color Sensor") 
+
+
+
+
+def decode_ble_package(package):
+        value = int.from_bytes(package[0:1], byteorder='little')
+        print (value)
+        if value == 0xa0:
+            decode_ble_light_Package(package)
+
+
+def decode_ble_light_Package(package):
+    value = int.from_bytes(package[2:4], byteorder='little')
+    f = float(value)/4906
+    ls.set_intensity(f )  
+    
+    value = int.from_bytes(package[4:6], byteorder='little')
+    f = float(value)/4906
+    ls2.set_intensity(f )  
+
+    value = int.from_bytes(package[6:8], byteorder='little')
+    f = float(value)/65536
+    color_sensor.set_intensity(0,f)  
+    print(value)
+
+    value = int.from_bytes(package[8:10], byteorder='little')
+    f = float(value)/65536
+    color_sensor.set_intensity(1,f)  
+    print(value)
+
+    value = int.from_bytes(package[10:12], byteorder='little')
+    f = float(value)/65536
+    color_sensor.set_intensity(2,f)  
+    print(value)
+
+    value = int.from_bytes(package[12:14], byteorder='little')
+    f = float(value)/65536
+    color_sensor.set_intensity(3,f)  
+    print(value)
+
+    value = int.from_bytes(package[14:16], byteorder='little')
+    f = float(value)/65536
+    color_sensor.set_intensity(4,f)  
+    print(value)
+
 async def main():
 
     ble = Ble(rx_queue,tx_queue)
@@ -180,11 +230,9 @@ async def main():
 
     robot = Robot(100,100)
 # light sensor
-    ls = Light_sensor("left eye")
-    ls2 = Light_sensor("right eye")
-
     light_sensor_view = view_light_sensor(ls)
     light2_sensor_view = view_light_sensor(ls2)
+    color_sensor_view = ViewColorSensor(color_sensor)
 
     # ----------------------------
     # Hauptschleife
@@ -249,6 +297,8 @@ async def main():
         light2_sensor_view.draw();
         screen.blit(light2_sensor_view, (450, 400))
 
+        color_sensor_view.draw();
+        screen.blit(color_sensor_view, (150, 100))
 
     
         pygame.display.flip()
@@ -258,15 +308,9 @@ async def main():
 
     ###### FiFO
 
+
         data = rx_queue.get()
-        value = int.from_bytes(data[0:2], byteorder='little')
-        f = float(value)/4906
-        ls.set_intensity(f )  
-
-        value = int.from_bytes(data[2:4], byteorder='little')
-        f = float(value)/4906
-        ls2.set_intensity(f )  
-
+        decode_ble_package(data)
 
 
     pygame.quit()
