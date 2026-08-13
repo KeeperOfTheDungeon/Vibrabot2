@@ -9,6 +9,7 @@
 #include "inc/driver_led.h"
 #include "inc/driver_adc.h"
 #include "inc/veml3328.h"
+#include "inc/microphone.h"
 
 
 Light_sensor left_light_sensor;
@@ -24,6 +25,8 @@ Driver_led driver_led;
 Driver_adc driver_adc;
 Ble ble;
 Veml3328 colorSensor;
+Microphone microphone;
+
 void setup() {
   Serial.begin(115200); 
     delay(1000);
@@ -51,9 +54,11 @@ void setup() {
 
   system_clock.init();
 //  pwm_init_registers();
-   driver_led.init();
+ //  driver_led.init();
   driver_adc.init();
    ble.init() ;
+   delay(1000);
+  microphone.init();
   Serial.println ("init complete");
 }
 
@@ -93,12 +98,7 @@ void send_data()
       value[5] = colorSensor.getIntensity(2);  // Color Sensor Green
       value[6] = colorSensor.getIntensity(3);  // Color Sensor Blue
       value[7] = colorSensor.getIntensity(4);  // Color Sensor IR
-      Serial.print ("co : ");
-      Serial.println(colorSensor.getIntensity(0));
-      Serial.print ("re : ");
-      Serial.println(colorSensor.getIntensity(1));
-      Serial.print ("gr : ");
-      Serial.println(colorSensor.getIntensity(2));
+
 /*
       value[8] = right_light_sensor.get_intensity();  // Proximity Left
       value[9] = right_light_sensor.get_intensity();  // Proximity center
@@ -130,35 +130,47 @@ void send_data()
 
 
 
-void loop() {
+void loop() 
+{
  
     if (system_clock.get_tick())
     {
-      system_clock.clear_tick();
+    system_clock.clear_tick();
+
       a++;
+
+
+  if (microphone.available())
+          {
+            Serial.println("mic data");
+            int16_t* data =  microphone.read();
+            Serial.println((int16_t)data[0]);
+          }
+          else
+          {
+            Serial.println("no mic data");
+          }
+
+      //Serial.println ("alive");
       switch (a)
       {
       case 1:
-          Serial.println ("sample");
+        //  Serial.println ("sample");
         //  digitalWrite(1,HIGH);
           driver_adc.adc_sample();
           colorSensor.fetchData();
 
-          Serial.println ("sample ready");
+          //Serial.println ("sample ready");
         break;
        
        case 10:
         
          //   digitalWrite(1,LOW);
            a=0; 
-           process_analog_data();
-            Serial.print ("l : ");
-            Serial.print (left_light_sensor.get_intensity());
-            Serial.print (" : ");
-            Serial.print ("l : ");
-            Serial.println (right_light_sensor.get_intensity());
-            
+               
             send_data();
+
+       
 
             break; 
 
@@ -174,6 +186,7 @@ void loop() {
      //delay(200);
 
     }
+
 }
 
 

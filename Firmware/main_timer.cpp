@@ -74,8 +74,6 @@ void Main_timer::init(void)
      
     uint32_t *vectors = (uint32_t *)SCB->VTOR;
 
-    // set vector in interupt table for Timer3 Handler
-    vectors[16 + TIMER3_IRQn] = (uint32_t)TIMER3_IRQHandler;
 
     __DSB();
     __ISB();

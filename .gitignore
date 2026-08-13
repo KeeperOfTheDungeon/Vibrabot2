@@ -1,2 +1,3 @@
 python_embedded
 __pycache__
+*.wav

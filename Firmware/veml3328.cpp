@@ -58,7 +58,7 @@ uint16_t Veml3328::readRegister16(uint8_t reg)
 
 void Veml3328::fetchData(void)
 {
-  Serial.println("data fetch");
+
   this->lightSensors[0].set_intensity(readRegister16(REG_C));
   this->lightSensors[1].set_intensity(readRegister16(REG_R));
   this->lightSensors[2].set_intensity(readRegister16(REG_G));
