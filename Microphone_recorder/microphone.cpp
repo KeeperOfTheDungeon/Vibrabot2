@@ -54,7 +54,7 @@ void Microphone::init()
      NRF_PDM->PSEL.DIN = MICROPHONE_DIN;
 
     NRF_P1->DIRSET = (1<<10);
-    NRF_P0->OUTSET = (1<<10);
+    NRF_P1->OUTSET = (1<<10);
 
 
     NRF_PDM->MODE = PDM_MODE_OPERATION_Msk | PDM_MODE_EDGE_Msk;

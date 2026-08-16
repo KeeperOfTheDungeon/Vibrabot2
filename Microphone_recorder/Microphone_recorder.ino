@@ -28,7 +28,6 @@ void loop()
           int16_t* data = microphone.read();
 
         uint16_t magic = 0xAA55;
-
         Serial.write((uint8_t*)&magic, 2);
         Serial.write((uint8_t*)data, 256 * sizeof(int16_t));
           

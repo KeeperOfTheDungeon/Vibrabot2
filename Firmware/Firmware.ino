@@ -53,13 +53,13 @@ void setup() {
   colorSensor.init();
 
   system_clock.init();
-//  pwm_init_registers();
- //  driver_led.init();
-  driver_adc.init();
+  //driver_adc.init();
    ble.init() ;
    delay(1000);
   microphone.init();
   Serial.println ("init complete");
+     pinMode(0, OUTPUT);
+    pinMode(1, OUTPUT);
 }
 
 
@@ -128,7 +128,15 @@ void send_data()
 
 }
 
+void send_Microphonedata()
+{
 
+ 
+    uint16_t value[11];
+
+   value[0] = PACKEGE_LIGHT_SENSOR_DATA;
+
+}
 
 void loop() 
 {
@@ -137,19 +145,24 @@ void loop()
     {
     system_clock.clear_tick();
 
+    
+
+
+    if (microphone.is_magnitudeReady())
+      {
+          peak_t peak;
+          Serial.println("***");
+          for (int i =0; i <3 ;i++)
+          {
+            microphone.findMagnitudePeak(&peak);
+            Serial.print(peak.bin);
+            Serial.print(" : ");
+            Serial.println(peak.level);
+          } 
+      }
+
+    microphone.processFft();
       a++;
-
-
-  if (microphone.available())
-          {
-            Serial.println("mic data");
-            int16_t* data =  microphone.read();
-            Serial.println((int16_t)data[0]);
-          }
-          else
-          {
-            Serial.println("no mic data");
-          }
 
       //Serial.println ("alive");
       switch (a)
