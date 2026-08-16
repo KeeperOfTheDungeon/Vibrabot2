@@ -39,6 +39,7 @@ void setup() {
   pinMode(11, OUTPUT);
   pinMode(12, OUTPUT);
   pinMode(13, OUTPUT);
+  //pinMode(0, INPUT);
  // pinMode(1, OUTPUT);
   // pinMode(0, OUTPUT);
  // led.init();
@@ -53,13 +54,12 @@ void setup() {
   colorSensor.init();
 
   system_clock.init();
-  //driver_adc.init();
+  driver_adc.init();
    ble.init() ;
    delay(1000);
   microphone.init();
   Serial.println ("init complete");
-     pinMode(0, OUTPUT);
-    pinMode(1, OUTPUT);
+
 }
 
 
@@ -71,7 +71,7 @@ volatile int  a;
 void process_analog_data()
 {
   uint16_t value;
-
+  Serial.println ("Process analog data");
   value =  ADC_MAX_VALUE - driver_adc.get(0);
   left_light_sensor.set_intensity(value);
 
@@ -79,19 +79,18 @@ void process_analog_data()
   value =  ADC_MAX_VALUE - driver_adc.get(1);
   right_light_sensor.set_intensity(value);
 
-
-
-
-
 }
-#define PACKEGE_LIGHT_SENSOR_DATA 0xA0
+#define PACKAGE_LIGHT_SENSOR_DATA 0xA0
+#define PACKAGE_FFT_DATA 0xB0
 
 void send_data()
 {
       uint16_t value[11];
-      value[0] = PACKEGE_LIGHT_SENSOR_DATA;
+      value[0] = PACKAGE_LIGHT_SENSOR_DATA;
       value[1] = left_light_sensor.get_intensity();   // Light Sensor left
       value[2] = right_light_sensor.get_intensity();  // Light Sensor right
+
+      Serial.println(value[1]);
 
       value[3] = colorSensor.getIntensity(0);  // Color Sensor clear
       value[4] = colorSensor.getIntensity(1);  // Color Sensor Red
@@ -127,15 +126,33 @@ void send_data()
     
 
 }
+ float magMax =0;
 
-void send_Microphonedata()
+void sendFftData()
 {
+  peak_t peak;
+  int16_t bin;
+  int16_t level;
+  uint16_t value[7];
+  uint8_t pos;
 
- 
-    uint16_t value[11];
+  value[0] = PACKAGE_FFT_DATA;
 
-   value[0] = PACKEGE_LIGHT_SENSOR_DATA;
-
+ // Serial.println("***");
+  pos = 1;
+  for (int i =0; i < 3 ;i++)
+  {
+    microphone.findMagnitudePeak(&peak);
+   
+    bin = (uint16_t) (peak.bin*100);
+    value[pos++] = bin;
+    level = (uint16_t)  (peak.level/230);
+  
+    value[pos++] = level;
+  }
+   
+    
+   bool succes = ble.sendDataBlock((uint8_t*)&value, 14);
 }
 
 void loop() 
@@ -150,15 +167,9 @@ void loop()
 
     if (microphone.is_magnitudeReady())
       {
-          peak_t peak;
-          Serial.println("***");
-          for (int i =0; i <3 ;i++)
-          {
-            microphone.findMagnitudePeak(&peak);
-            Serial.print(peak.bin);
-            Serial.print(" : ");
-            Serial.println(peak.level);
-          } 
+
+          sendFftData();
+
       }
 
     microphone.processFft();
@@ -168,9 +179,8 @@ void loop()
       switch (a)
       {
       case 1:
-        //  Serial.println ("sample");
-        //  digitalWrite(1,HIGH);
-          driver_adc.adc_sample();
+         Serial.println ("sample");
+           driver_adc.adc_sample();
           colorSensor.fetchData();
 
           //Serial.println ("sample ready");
@@ -178,9 +188,8 @@ void loop()
        
        case 10:
         
-         //   digitalWrite(1,LOW);
            a=0; 
-               
+            process_analog_data(); 
             send_data();
 
        

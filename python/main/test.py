@@ -1,7 +1,10 @@
 import asyncio
 from hardware.light_sensor import Light_sensor
+from hardware.AudioSensor import AudioSensor
 from hardware.ColorSensor import ColorSensor
+from hardware.AudioSpectrum import AudioSpectrum
 from view.ViewColorSensor import ViewColorSensor
+from view.ViewAudioSensor import ViewAudioSensor
 from view.view_light_sensor import view_light_sensor
 import pygame
 import math
@@ -15,7 +18,7 @@ import queue
 # ----------------------------
 
 WIDTH = 800
-HEIGHT = 600
+HEIGHT = 800
 
 ROBOT_RADIUS = 15
 SENSOR_LENGTH = 120
@@ -160,7 +163,7 @@ tx_queue = queue.Queue()
 ls = Light_sensor("left eye")
 ls2 = Light_sensor("right eye")
 color_sensor = ColorSensor("color Sensor") 
-
+audio_sensor =AudioSensor("")
 
 
 
@@ -169,6 +172,24 @@ def decode_ble_package(package):
         print (value)
         if value == 0xa0:
             decode_ble_light_Package(package)
+        if value == 0xB0:
+            decode_ble_fft_Package(package)
+
+
+
+def decode_ble_fft_Package(package):
+    spectrum = AudioSpectrum()
+    position = 2
+    
+    for index in  range(3):
+        bin = int.from_bytes(package[position :position +2], byteorder='little')
+
+        level = int.from_bytes(package[position+2 :position +4], byteorder='little')
+        spectrum.set_bin(index, bin,level)
+        position = position + 4
+
+    audio_sensor.add(spectrum)
+
 
 
 def decode_ble_light_Package(package):
@@ -233,6 +254,7 @@ async def main():
     light_sensor_view = view_light_sensor(ls)
     light2_sensor_view = view_light_sensor(ls2)
     color_sensor_view = ViewColorSensor(color_sensor)
+    audio_sensor_view = ViewAudioSensor(audio_sensor)
 
     # ----------------------------
     # Hauptschleife
@@ -299,6 +321,9 @@ async def main():
 
         color_sensor_view.draw();
         screen.blit(color_sensor_view, (150, 100))
+
+        audio_sensor_view.draw();
+        screen.blit(audio_sensor_view, (150, 400))
 
     
         pygame.display.flip()

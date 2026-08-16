@@ -182,8 +182,7 @@ void Microphone::a(void)
     
 void Microphone::calculate_buffer(int16_t * buffer, float * fft_buffer)
 {
-    digitalWrite(1,HIGH);
-   
+    
     for (int i = 0; i < FFT_SIZE; i++)
         {
         fft_buffer[i] = (float)microphoneData.data_buffer[0] [i];
