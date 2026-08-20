@@ -28,6 +28,10 @@ void Veml3328::init()
   // Sensor enabled
   //
   // 0x0000 is a basic/default configuration.
+
+ // NRF_TWIM0->PSEL.SCL =
+  NRF_TWIM0->PSEL.SDA = 44;
+
   writeRegister16(REG_CONF, 0x0000);
 
 }
@@ -59,16 +63,16 @@ uint16_t Veml3328::readRegister16(uint8_t reg)
 void Veml3328::fetchData(void)
 {
 
-  this->lightSensors[0].set_intensity(readRegister16(REG_C));
-  this->lightSensors[1].set_intensity(readRegister16(REG_R));
-  this->lightSensors[2].set_intensity(readRegister16(REG_G));
-  this->lightSensors[3].set_intensity(readRegister16(REG_B));
-  this->lightSensors[4].set_intensity(readRegister16(REG_IR));
+  this->lightSensors[0].setIntensity(readRegister16(REG_C));
+  this->lightSensors[1].setIntensity(readRegister16(REG_R));
+  this->lightSensors[2].setIntensity(readRegister16(REG_G));
+  this->lightSensors[3].setIntensity(readRegister16(REG_B));
+  this->lightSensors[4].setIntensity(readRegister16(REG_IR));
 }
 
 
 uint16_t  Veml3328::getIntensity(int channel)
 {
-  return(this->lightSensors[channel].get_intensity());
+  return(this->lightSensors[channel].getIntensity());
   
 }

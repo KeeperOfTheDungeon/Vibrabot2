@@ -1,21 +1,20 @@
 #include <stdbool.h>
 #include "inc/ir_sensor.h"
-/*
 
-void Light_sensor::init()
+
+void IrSensor::init()
 {
- light_sensor.intensity = 0;
+ LightSensor::setIntensity(0);
 }
 
 
-uint16_t Light_sensor::get_intensity()
+uint16_t IrSensor::getIntensity()
 {
-  return(light_sensor.intensity);
+  return(LightSensor::getIntensity());
 }
     
-void Light_sensor::set_intensity(uint16_t intensity)
+void IrSensor::setIntensity(uint16_t intensity)
 {
-  light_sensor.intensity = intensity;
+  LightSensor::setIntensity(intensity);
 }
 
-*/

@@ -313,17 +313,17 @@ async def main():
         pygame.draw.circle(screen, (0,200,0),((300, 300)), 4 )
 
         light_sensor_view.draw();
-        screen.blit(light_sensor_view, (450, 100))
+        screen.blit(light_sensor_view, (600, 10))
 
 
         light2_sensor_view.draw();
-        screen.blit(light2_sensor_view, (450, 400))
+        screen.blit(light2_sensor_view, (600, 200))
 
         color_sensor_view.draw();
-        screen.blit(color_sensor_view, (150, 100))
+        screen.blit(color_sensor_view, (600, 400))
 
         audio_sensor_view.draw();
-        screen.blit(audio_sensor_view, (150, 400))
+        screen.blit(audio_sensor_view, (150, 600))
 
     
         pygame.display.flip()

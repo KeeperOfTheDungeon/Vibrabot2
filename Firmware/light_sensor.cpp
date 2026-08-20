@@ -2,19 +2,19 @@
 #include "inc/light_sensor.h"
 
 
-void Light_sensor::init()
+void LightSensor::init()
 {
- light_sensor.intensity = 0;
+ this->intensity = 0;
 }
 
 
-uint16_t Light_sensor::get_intensity()
+uint16_t LightSensor::getIntensity()
 {
-  return(light_sensor.intensity);
+  return(this->intensity);
 }
     
-void Light_sensor::set_intensity(uint16_t intensity)
+void LightSensor::setIntensity(uint16_t intensity)
 {
-  light_sensor.intensity = intensity;
+  this->intensity = intensity;
 }
 

@@ -18,7 +18,7 @@
 class Veml3328{
 	private:
 	
-	Light_sensor lightSensors[VEML3328_SENSORS_COUNT];
+	LightSensor lightSensors[VEML3328_SENSORS_COUNT];
 
 	public:
 	void init();

@@ -3,26 +3,19 @@
 
 
 #include <stdint.h>
-
-/*
-
-typedef struct {
-	uint16_t intensity;
-
-} light_sensor_t;
+#include "inc/light_sensor.h"
 
 
-class Ir_sensor{
+
+class IrSensor : LightSensor{
 	private:
-		light_sensor_t light_sensor;
+		bool a;
 
 	public:
 
 
 		void init();
-		uint16_t get_intensity();
-		void set_intensity(uint16_t intensity);
-		void set_raw_intensity(uint16_t intensity);
+		uint16_t getIntensity();
+		void setIntensity(uint16_t intensity);
 };
-*/
 #endif
