@@ -3,8 +3,8 @@ from view.SensorView import SensorView
 import pygame as pygame
 
 class view_light_sensor(SensorView):
-    def __init__(self, light_sensor):
-        super().__init__(190, 200,light_sensor.get_name())
+    def __init__(self,x_pos, y_pos, light_sensor):
+        super().__init__(x_pos, y_pos,150, 190,light_sensor.get_name())
         self.light_sensor = light_sensor 
         pass
 
@@ -14,6 +14,21 @@ class view_light_sensor(SensorView):
 
         pygame.draw.rect(self, (0,0,0),(9,50,128,128))
 
+        history_end = 180
+
+        pygame.draw.line(
+                        self,
+                        (255, 255, 255),
+                        (9, history_end-128),
+                        (9, history_end)
+                    )
+
+        pygame.draw.line(
+                        self,
+                        (255, 255, 255),
+                        (9, history_end),
+                        (137, history_end)
+                    )
 
 
         history = self.light_sensor.get_history()
@@ -21,7 +36,7 @@ class view_light_sensor(SensorView):
         prev_x = 0;
         prev_y = 0;
         actual_x = 10;
-        actual_y = 180;
+        actual_y = history_end;
 
         for i in range(len(values) - 1):
             value = values[i]

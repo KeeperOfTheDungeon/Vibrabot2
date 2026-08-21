@@ -1,10 +1,13 @@
 import asyncio
 from hardware.light_sensor import Light_sensor
 from hardware.AudioSensor import AudioSensor
+from hardware.ProximitySensor import ProximitySensor
 from hardware.ColorSensor import ColorSensor
 from hardware.AudioSpectrum import AudioSpectrum
+from ui.window_manager import WindowManager
 from view.ViewColorSensor import ViewColorSensor
 from view.ViewAudioSensor import ViewAudioSensor
+from view.ProximitySensorView import ProximitySensorView
 from view.view_light_sensor import view_light_sensor
 import pygame
 import math
@@ -17,8 +20,8 @@ import queue
 # Einstellungen
 # ----------------------------
 
-WIDTH = 800
-HEIGHT = 800
+WIDTH = 1000
+HEIGHT = 900
 
 ROBOT_RADIUS = 15
 SENSOR_LENGTH = 120
@@ -163,17 +166,27 @@ tx_queue = queue.Queue()
 ls = Light_sensor("left eye")
 ls2 = Light_sensor("right eye")
 color_sensor = ColorSensor("color Sensor") 
-audio_sensor =AudioSensor("")
+audio_sensor =AudioSensor("Spectrum")
 
+left_proximity_sensor = ProximitySensor("left proximity")
+center_proximity_sensor = ProximitySensor("center proximity")
+right_proximity_sensor = ProximitySensor("right proximity")
+
+window_manager = WindowManager()
 
 
 def decode_ble_package(package):
         value = int.from_bytes(package[0:1], byteorder='little')
-        print (value)
-        if value == 0xa0:
-            decode_ble_light_Package(package)
-        if value == 0xB0:
-            decode_ble_fft_Package(package)
+
+        #print (value)
+
+        match  value:
+            case  0xa0:
+                decode_ble_light_Package(package)
+            case 0xa1:
+                decode_ble_proximity_Package(package)
+            case 0xB0:
+                decode_ble_fft_Package(package)
 
 
 
@@ -204,27 +217,55 @@ def decode_ble_light_Package(package):
     value = int.from_bytes(package[6:8], byteorder='little')
     f = float(value)/65536
     color_sensor.set_intensity(0,f)  
-    print(value)
 
     value = int.from_bytes(package[8:10], byteorder='little')
     f = float(value)/65536
+    f = f * (34.0 / 41.0)
     color_sensor.set_intensity(1,f)  
-    print(value)
 
     value = int.from_bytes(package[10:12], byteorder='little')
     f = float(value)/65536
+    f = f * (34.0 / 39.0)
     color_sensor.set_intensity(2,f)  
-    print(value)
 
     value = int.from_bytes(package[12:14], byteorder='little')
     f = float(value)/65536
     color_sensor.set_intensity(3,f)  
-    print(value)
 
     value = int.from_bytes(package[14:16], byteorder='little')
     f = float(value)/65536
     color_sensor.set_intensity(4,f)  
-    print(value)
+
+
+
+def decode_ble_proximity_Package(package):
+
+    position = 2
+
+    value  = int.from_bytes(package[position :position +2], byteorder='little')
+    f = float(value)/4906
+    left_proximity_sensor.set_intensity(f)
+
+    position += 2
+    value  = int.from_bytes(package[position :position +2], byteorder='little')
+    f = float(value)/4906
+    center_proximity_sensor.set_intensity(f)
+
+    position += 2
+    value  = int.from_bytes(package[position :position +2], byteorder='little')
+    f = float(value)/4906
+    right_proximity_sensor.set_intensity(f)
+
+    position += 2
+    value  = int.from_bytes(package[position :position +2], byteorder='little')
+    f = float(value)
+     
+    left_proximity_sensor.set_status(f)
+    center_proximity_sensor.set_status(f)
+    right_proximity_sensor.set_status(f)
+    
+   
+
 
 async def main():
 
@@ -251,14 +292,28 @@ async def main():
 
     robot = Robot(100,100)
 # light sensor
-    light_sensor_view = view_light_sensor(ls)
-    light2_sensor_view = view_light_sensor(ls2)
-    color_sensor_view = ViewColorSensor(color_sensor)
-    audio_sensor_view = ViewAudioSensor(audio_sensor)
+    left_light_sensor_view = view_light_sensor(696, 10,ls)
+    right_light_sensor_view = view_light_sensor(848, 10,ls2)
+    color_sensor_view = ViewColorSensor(696, 478, color_sensor)
+    audio_sensor_view = ViewAudioSensor(696, 650, audio_sensor)
+
+    left_proximity_sensor_view = ProximitySensorView(696, 202, left_proximity_sensor)
+    center_proximity_sensor_view = ProximitySensorView(696, 294, center_proximity_sensor)
+    right_proximity_sensor_view = ProximitySensorView(696, 386, right_proximity_sensor)
 
     # ----------------------------
     # Hauptschleife
     # ----------------------------
+
+    window_manager.add(left_light_sensor_view)
+    window_manager.add(right_light_sensor_view)
+
+    window_manager.add(left_proximity_sensor_view)
+    window_manager.add(center_proximity_sensor_view)
+    window_manager.add(right_proximity_sensor_view)
+
+    window_manager.add(color_sensor_view)
+    window_manager.add(audio_sensor_view)
 
     running = True
 
@@ -267,7 +322,10 @@ async def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running=False
-
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                print("Mouse button:", event.button)
+                print("Position:", event.pos)
+                window_manager.get_window_on_position(event.pos)
 
         # Teststeuerung
         keys = pygame.key.get_pressed()
@@ -310,23 +368,17 @@ async def main():
 
 
         robot.draw(screen)
+
+        window_manager.draw(screen)
         pygame.draw.circle(screen, (0,200,0),((300, 300)), 4 )
-
-        light_sensor_view.draw();
-        screen.blit(light_sensor_view, (600, 10))
-
-
-        light2_sensor_view.draw();
-        screen.blit(light2_sensor_view, (600, 200))
-
-        color_sensor_view.draw();
-        screen.blit(color_sensor_view, (600, 400))
-
-        audio_sensor_view.draw();
-        screen.blit(audio_sensor_view, (150, 600))
 
     
         pygame.display.flip()
+
+
+     
+
+
 
         clock.tick(FPS)
         await asyncio.sleep(0)

@@ -38,11 +38,11 @@ void Driver_adc::init()
 
  
 
-    this->init_channel(0, SAADC_CH_PSELP_PSELP_AnalogInput0);
-    this->init_channel(1, SAADC_CH_PSELP_PSELP_AnalogInput1);
+    this->init_channel(0, SAADC_CH_PSELP_PSELP_AnalogInput1);
+    this->init_channel(1, SAADC_CH_PSELP_PSELP_AnalogInput0);
     this->init_channel(2, SAADC_CH_PSELP_PSELP_AnalogInput2);
-    this->init_channel(3, SAADC_CH_PSELP_PSELP_AnalogInput4);
-    this->init_channel(4, SAADC_CH_PSELP_PSELP_AnalogInput5);
+    this->init_channel(3, SAADC_CH_PSELP_PSELP_AnalogInput5);
+    this->init_channel(4, SAADC_CH_PSELP_PSELP_AnalogInput4);
 
 //7 battery
 

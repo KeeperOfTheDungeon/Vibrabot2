@@ -83,7 +83,7 @@ class Ble:
 
     def notification_handler(self, sender, data):
         self.rx_queue.put(bytes(data))
-        print(f"RX {len(data)} bytes:")
+    #    print(f"RX {len(data)} bytes:")
 
 
     def disconnected_callback(self,client):

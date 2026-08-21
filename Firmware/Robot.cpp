@@ -16,7 +16,7 @@
 void Robot::init()
 {
   ble.init();
-  driver_adc.init();
+
   microphone.init();
 
   this->left_light_sensor.init();
@@ -27,6 +27,7 @@ void Robot::init()
   this->center_ir_sensor.init();
   this->right_ir_sensor.init();
   this->color_sensor.init();
+  driver_adc.init();
 }
 
 
@@ -82,16 +83,24 @@ bool Robot::sendVisibleData()
 
 bool Robot::sendIrData()
 {
+      static uint16_t led;
       uint16_t value[11];
       value[0] = PACKAGE_IR_SENSOR_DATA ;
-      value[1] = this->left_ir_sensor.getIntensity();   // Light Sensor left
-      value[2] = this->center_ir_sensor.getIntensity();  // Light Sensor right
-      value[3] = this->right_ir_sensor.getIntensity();  // Color Sensor clear
-      
-      Serial.println(value[0]);
-  	  Serial.println(value[1]);
-
-      bool succes = ble.sendDataBlock((uint8_t*)&value, 16);
+      value[1] = this->left_ir_sensor.getIntensity();   // ir Sensor left
+      value[2] = this->center_ir_sensor.getIntensity();  // ir Sensor right
+      value[3] = this->right_ir_sensor.getIntensity();  // ir Sensor clear
+      value[4] = led;
+     
+      if (led!=0)
+      {
+        led=0;
+      }
+      else
+      {
+        led=1;
+      }
+    Serial.println(value[4]);
+      bool succes = ble.sendDataBlock((uint8_t*)&value, 10);
     
   return succes;
 }
@@ -155,7 +164,6 @@ void Robot::process(void)
       case 2:
           this->ProcessAnalogData();
           this->sendVisibleData();
-          this->sendIrData();
       break;
 
       case 3:

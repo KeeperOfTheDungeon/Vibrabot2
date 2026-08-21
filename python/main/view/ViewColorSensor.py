@@ -3,8 +3,8 @@ from view.SensorView import SensorView
 import pygame as pygame
 
 class ViewColorSensor(SensorView):
-    def __init__(self, color_sensor):
-        super().__init__(200, 200,color_sensor.get_name())
+    def __init__(self,x_pos, y_pos, color_sensor):
+        super().__init__(x_pos, y_pos,190, 160,color_sensor.get_name())
         self.color_sensor = color_sensor 
         pass
 
@@ -42,10 +42,6 @@ class ViewColorSensor(SensorView):
         green = self.color_sensor.get_intensity(2)
         blue = self.color_sensor.get_intensity(3)
 
-        print(red)
-        print(green)
-        print(blue)
-
         max_color = red
 
         if red < blue:
@@ -57,19 +53,12 @@ class ViewColorSensor(SensorView):
         if max_color == 0:
             max_color = 0.001
 
-        print(max_color)
-
         faktor = (1.0 / max_color) *100
         
         red = int (red * faktor)
         green = int (green * faktor)
         blue = int (blue * faktor)
-
-        print(faktor)
-        print(red)
-        print(green)
-        print(blue)
         
-        pygame.draw.rect(self, (red,green,blue),(9,150,100,20))
+        pygame.draw.rect(self, (red,green,blue),(130,30,50,100))
 
 
