@@ -1,5 +1,5 @@
-#ifndef MOTOR_DRIVER_h_
-#define MOTOR_DRIVER_h_
+#ifndef DRIVER_MOTOR_H_
+#define DRIVER_MOTOR_H_
 #include <stdint.h>
 #include <Arduino.h>
 #include <nrf.h> 
@@ -10,11 +10,13 @@ typedef struct {
 } motor_t;
 
 
+class DriverMotor{
 
-void motor_driver_init();
+	public: 
+	void init(void);
 
   
-
+};
 
 
 

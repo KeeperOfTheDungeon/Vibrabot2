@@ -8,6 +8,7 @@
 #include "inc/ir_sensor.h"
 #include "inc/driver_led.h"
 #include "inc/driver_adc.h"
+#include "inc/driver_motor.h"
 #include "inc/veml3328.h"
 #include "inc/microphone.h"
 #include "inc/TemperatureSensor.h"
@@ -15,6 +16,7 @@
 
 void Robot::init()
 {
+   Serial.println("***********init **********");
   ble.init();
 
   microphone.init();
@@ -27,7 +29,13 @@ void Robot::init()
   this->center_ir_sensor.init();
   this->right_ir_sensor.init();
   this->color_sensor.init();
+  this->irSwitch.init(0,0);
+
+ Serial.println("***********init adc**********");
+
   driver_adc.init();
+
+  this->driver_motor.init();
 }
 
 
@@ -36,7 +44,6 @@ void Robot::init()
 void Robot::ProcessAnalogData()
 {
   uint16_t value;
-  Serial.println ("Process analog data");
   value =  ADC_MAX_VALUE - driver_adc.get(0);
   this->left_light_sensor.setIntensity(value);
 
@@ -71,10 +78,7 @@ bool Robot::sendVisibleData()
       value[6] = color_sensor.getIntensity(3);  // Color Sensor Blue
       value[7] = color_sensor.getIntensity(4);  // Color Sensor IR
 
-      Serial.println(value[3]);
-      Serial.println(value[4]);
-
-      bool succes = ble.sendDataBlock((uint8_t*)&value, 16);
+      bool succes = ble.sendDataBlock((uint8_t*)value, 16);
     
   return succes;
 }
@@ -83,26 +87,27 @@ bool Robot::sendVisibleData()
 
 bool Robot::sendIrData()
 {
-      static uint16_t led;
-      uint16_t value[11];
+      uint16_t value[5];
       value[0] = PACKAGE_IR_SENSOR_DATA ;
       value[1] = this->left_ir_sensor.getIntensity();   // ir Sensor left
       value[2] = this->center_ir_sensor.getIntensity();  // ir Sensor right
       value[3] = this->right_ir_sensor.getIntensity();  // ir Sensor clear
-      value[4] = led;
-     
-      if (led!=0)
-      {
-        led=0;
-      }
-      else
-      {
-        led=1;
-      }
-    Serial.println(value[4]);
-      bool succes = ble.sendDataBlock((uint8_t*)&value, 10);
-    
-  return succes;
+      value[4] = this->irSwitch.getStatus(); // status of the ir leds
+	     
+   //    uint32_t start = micros();
+   //    pinMode(9, OUTPUT);
+    //  digitalWrite(9,HIGH);
+      bool success = ble.sendDataBlock((uint8_t*)value, 10);
+   //   digitalWrite(9,LOW);
+
+   //   uint32_t duration = micros() - start;
+
+   //   Serial.print(success);
+   //   Serial.print("  ");
+   //   Serial.println(duration);
+
+
+  return success;
 }
 
 
@@ -116,7 +121,6 @@ bool Robot::sendFftData()
 
   value[0] = PACKAGE_FFT_DATA;
 
- // Serial.println("***");
   pos = 1;
   for (int i =0; i < 3 ;i++)
   {
@@ -130,7 +134,7 @@ bool Robot::sendFftData()
   }
    
     
-   bool succes = ble.sendDataBlock((uint8_t*)&value, 14);
+   bool succes = ble.sendDataBlock((uint8_t*)value, 14);
 
     return succes;
 }
@@ -144,7 +148,7 @@ void Robot::process(void)
  
   if (this->microphone.is_magnitudeReady())
   {
-    this->sendFftData();
+  //  this->sendFftData();
 
   }
   this->microphone.processFft();
@@ -153,12 +157,10 @@ void Robot::process(void)
   switch (this->cycle_counter)
     {
     case 1:
-        Serial.println ("sample");
+        this->irSwitch.on();
         this->driver_adc.adc_sample();
 
          this->color_sensor.fetchData();
-
-        //Serial.println ("sample ready");
       break;
       
       case 2:
@@ -166,7 +168,18 @@ void Robot::process(void)
           this->sendVisibleData();
       break;
 
-      case 3:
+
+      case 4:
+          this->sendIrData();
+      break;
+
+    case 5:
+        this->irSwitch.off();
+        this->driver_adc.adc_sample();
+      break;
+      
+      case 7:
+          this->ProcessAnalogData();
           this->sendIrData();
       break;
 

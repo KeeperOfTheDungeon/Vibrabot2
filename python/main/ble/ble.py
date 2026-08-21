@@ -1,5 +1,6 @@
 import asyncio
 import threading
+import time
 
 from bleak import BleakScanner, BleakClient
 
@@ -82,9 +83,9 @@ class Ble:
 
 
     def notification_handler(self, sender, data):
+        print(f"RX {len(data)} bytes  {time.perf_counter():.6f}")
         self.rx_queue.put(bytes(data))
-    #    print(f"RX {len(data)} bytes:")
-
+    
 
     def disconnected_callback(self,client):
         print("!!! BLE DISCONNECTED !!!")

@@ -23,11 +23,11 @@ Robot vibrabot;
 
 void setup() {
   Serial.begin(115200); 
-    delay(1000);
-  Serial.println ("init");
+    delay(2000);
+  Serial.println ("init a");
 
 
-  vibrabot.init();
+
 
   Serial.println ("complette");
   // Pin als Ausgang für Sicherheit (GPIO)
@@ -50,7 +50,7 @@ void setup() {
 
 
    delay(1000);
-
+  vibrabot.init();
   Serial.println ("init complete");
 
 }
@@ -65,8 +65,6 @@ void loop()
   if (system_clock.get_tick())
   {
     system_clock.clear_tick();
-
-
     vibrabot.process();
 
 

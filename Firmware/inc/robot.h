@@ -8,10 +8,11 @@
 #include "inc/ir_sensor.h"
 #include "inc/driver_led.h"
 #include "inc/driver_adc.h"
+#include "inc/driver_motor.h"
 #include "inc/veml3328.h"
 #include "inc/microphone.h"
 #include "inc/TemperatureSensor.h"
-
+#include "inc/switch.h"
 
 
 #define PACKAGE_VISIBLE_SENSOR_DATA 0xA0
@@ -39,6 +40,9 @@ class Robot{
 		Ble ble;
 
 		Driver_adc driver_adc;
+		DriverMotor driver_motor;
+		Switch irSwitch;
+		
 
 	public:	
 		void init();
