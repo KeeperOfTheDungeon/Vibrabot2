@@ -1,4 +1,5 @@
 import asyncio
+from hardware.Vibrabot import Vibrabot
 from hardware.light_sensor import Light_sensor
 from hardware.AudioSensor import AudioSensor
 from hardware.ProximitySensor import ProximitySensor
@@ -6,11 +7,14 @@ from hardware.ColorSensor import ColorSensor
 from hardware.AudioSpectrum import AudioSpectrum
 from hardware.motor import Motor
 from ui.window_manager import WindowManager
+from view.VibrabotViewer import VibrabotViewer
 from view.ViewColorSensor import ViewColorSensor
 from view.ViewAudioSensor import ViewAudioSensor
 from view.ProximitySensorView import ProximitySensorView
 from view.MotorView import MotorView
 from view.view_light_sensor import view_light_sensor
+
+
 import pygame
 import math
 import numpy as np
@@ -35,7 +39,7 @@ FPS = 60
 # Roboter
 # ----------------------------
 
-class Robot:
+class Robot_test:
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -275,7 +279,7 @@ def decode_ble_proximity_Package(package):
 
 async def main():
 
-    ble = Ble(rx_queue,tx_queue)
+
    
 
     pygame.init()
@@ -295,33 +299,35 @@ async def main():
         pygame.Rect(200,450,80,80)
     ]
 
+    vibrabot = Vibrabot("vibrabot")
+    vibrabot_viever = VibrabotViewer(vibrabot)
 
-    robot = Robot(100,100)
+    robot = Robot_test(100,100)
 # light sensor
-    left_light_sensor_view = view_light_sensor(696, 10,ls)
-    right_light_sensor_view = view_light_sensor(848, 10,ls2)
-    color_sensor_view = ViewColorSensor(696, 478, color_sensor)
-    audio_sensor_view = ViewAudioSensor(696, 650, audio_sensor)
+   # left_light_sensor_view = view_light_sensor(696, 10,ls)
+   # right_light_sensor_view = view_light_sensor(848, 10,ls2)
+   # color_sensor_view = ViewColorSensor(696, 478, color_sensor)
+   # audio_sensor_view = ViewAudioSensor(696, 650, audio_sensor)
 
-    left_proximity_sensor_view = ProximitySensorView(696, 202, left_proximity_sensor)
-    center_proximity_sensor_view = ProximitySensorView(696, 294, center_proximity_sensor)
-    right_proximity_sensor_view = ProximitySensorView(696, 386, right_proximity_sensor)
-    motor_view = MotorView(886, 478, left_motor, right_motor)
+   # left_proximity_sensor_view = ProximitySensorView(696, 202, left_proximity_sensor)
+   # center_proximity_sensor_view = ProximitySensorView(696, 294, center_proximity_sensor)
+   # right_proximity_sensor_view = ProximitySensorView(696, 386, right_proximity_sensor)
+   # motor_view = MotorView(886, 478, left_motor, right_motor)
 
     # ----------------------------
     # Hauptschleife
     # ----------------------------
 
-    window_manager.add(left_light_sensor_view)
-    window_manager.add(right_light_sensor_view)
+   # window_manager.add(left_light_sensor_view)
+   # window_manager.add(right_light_sensor_view)
 
-    window_manager.add(left_proximity_sensor_view)
-    window_manager.add(center_proximity_sensor_view)
-    window_manager.add(right_proximity_sensor_view)
+   # window_manager.add(left_proximity_sensor_view)
+   # window_manager.add(center_proximity_sensor_view)
+   # window_manager.add(right_proximity_sensor_view)
 
-    window_manager.add(color_sensor_view)
-    window_manager.add(audio_sensor_view)
-    window_manager.add(motor_view)
+    #window_manager.add(color_sensor_view)
+   # window_manager.add(audio_sensor_view)
+   # window_manager.add(motor_view)
 
     running = True
 
@@ -333,7 +339,7 @@ async def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 print("Mouse button:", event.button)
                 print("Position:", event.pos)
-                window_manager.on_mouse_left(event.pos)
+                vibrabot_viever.on_mouse_left(event.pos)
 
             
 
@@ -379,8 +385,8 @@ async def main():
 
 
         robot.draw(screen)
-
-        window_manager.draw(screen)
+        vibrabot_viever.draw(screen)
+        #window_manager
         pygame.draw.circle(screen, (0,200,0),((300, 300)), 4 )
 
     

@@ -9,6 +9,7 @@ class Slider(UiElement):
         self.font = pygame.font.Font(None, 24)
         self.extend = 0
         self.value = 0.0
+        self.listener_list = list()
 
     def draw(self,context):
         super().draw(context)
@@ -29,3 +30,8 @@ class Slider(UiElement):
         self.extend = self.y_size- 1 -point[1]
         self.value = float(self.extend / (self.y_size -1))
         print(self.value)
+        for listener in self.listener_list:
+            listener.slider_value_change(self)
+
+    def add_listener(self, listener):
+        self.listener_list.append(listener)

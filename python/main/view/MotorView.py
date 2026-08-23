@@ -9,8 +9,13 @@ class MotorView(SensorView):
         self.motor_right = motor_right 
         self.left_motor_slider = Slider(10,30,30,100,"left")
         self.right_motor_slider = Slider(50,30,30,100,"right")
+
+        
         self.addComponent(self.left_motor_slider)
+        self.left_motor_slider.add_listener(self)
+
         self.addComponent(self.right_motor_slider)
+        self.right_motor_slider.add_listener(self)
 
         #self.bkgColor = (100, 100, 40)
 
@@ -18,7 +23,9 @@ class MotorView(SensorView):
         super().draw()
         self.left_motor_slider.draw(self)
         self.right_motor_slider.draw(self)
-        
+
+    def slider_value_change(self, component):
+        print(component)
 
         
 

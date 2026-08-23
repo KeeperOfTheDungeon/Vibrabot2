@@ -5,16 +5,16 @@ from collections import deque
 
 class WindowManager:
     def __init__(self):
-        self.elements = deque()
+        self.components = deque()
 
 
     def add(self, window):
-        self.elements.append(window)
+        self.components.append(window)
 
     def draw(self, screen):
-        for element in reversed(self.elements):
-            element.draw()
-            screen.blit(element, (element.get_x_pos(), element.get_y_pos()))
+        for component in reversed(self.components):
+            component.draw()
+            screen.blit(component, (component.get_x_pos(), component.get_y_pos()))
 
 
     def to_front(self, window):
@@ -22,19 +22,19 @@ class WindowManager:
 
 
     def on_mouse_left(self, position):
-        element = self.get_window_on_position(position)
+        component = self.get_window_on_position(position)
 
-        if element != None:
+        if component != None:
             print("found :")
-            print(element.get_name())    
-            element.on_mouse_left(position)
+            print(component.get_name())    
+            component.on_mouse_left(position)
 
 
     def get_window_on_position(self, position):
 
-        for element in self.elements:
-            if element.contains_point(position):
-                return(element)
+        for component in self.components:
+            if component.contains_point(position):
+                return(component)
 
         return(None)
      
