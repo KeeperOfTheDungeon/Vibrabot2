@@ -20,11 +20,22 @@ class WindowManager:
     def to_front(self, window):
         pass
 
+
+    def on_mouse_left(self, position):
+        element = self.get_window_on_position(position)
+
+        if element != None:
+            print("found :")
+            print(element.get_name())    
+            element.on_mouse_left(position)
+
+
     def get_window_on_position(self, position):
+
         for element in self.elements:
             if element.contains_point(position):
-                print(element.get_name())    
-                element.on_mouse(position)
-                break
+                return(element)
+
+        return(None)
      
 

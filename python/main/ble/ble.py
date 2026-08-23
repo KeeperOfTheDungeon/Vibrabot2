@@ -83,7 +83,7 @@ class Ble:
 
 
     def notification_handler(self, sender, data):
-        print(f"RX {len(data)} bytes  {time.perf_counter():.6f}")
+      #  print(f"RX {len(data)} bytes  {time.perf_counter():.6f}")
         self.rx_queue.put(bytes(data))
     
 

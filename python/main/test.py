@@ -4,10 +4,12 @@ from hardware.AudioSensor import AudioSensor
 from hardware.ProximitySensor import ProximitySensor
 from hardware.ColorSensor import ColorSensor
 from hardware.AudioSpectrum import AudioSpectrum
+from hardware.motor import Motor
 from ui.window_manager import WindowManager
 from view.ViewColorSensor import ViewColorSensor
 from view.ViewAudioSensor import ViewAudioSensor
 from view.ProximitySensorView import ProximitySensorView
+from view.MotorView import MotorView
 from view.view_light_sensor import view_light_sensor
 import pygame
 import math
@@ -172,6 +174,10 @@ left_proximity_sensor = ProximitySensor("left proximity")
 center_proximity_sensor = ProximitySensor("center proximity")
 right_proximity_sensor = ProximitySensor("right proximity")
 
+left_motor = Motor("left")
+right_motor = Motor("right")
+
+
 window_manager = WindowManager()
 
 
@@ -300,6 +306,7 @@ async def main():
     left_proximity_sensor_view = ProximitySensorView(696, 202, left_proximity_sensor)
     center_proximity_sensor_view = ProximitySensorView(696, 294, center_proximity_sensor)
     right_proximity_sensor_view = ProximitySensorView(696, 386, right_proximity_sensor)
+    motor_view = MotorView(886, 478, left_motor, right_motor)
 
     # ----------------------------
     # Hauptschleife
@@ -314,6 +321,7 @@ async def main():
 
     window_manager.add(color_sensor_view)
     window_manager.add(audio_sensor_view)
+    window_manager.add(motor_view)
 
     running = True
 
@@ -325,7 +333,10 @@ async def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 print("Mouse button:", event.button)
                 print("Position:", event.pos)
-                window_manager.get_window_on_position(event.pos)
+                window_manager.on_mouse_left(event.pos)
+
+            
+
 
         # Teststeuerung
         keys = pygame.key.get_pressed()
@@ -385,9 +396,9 @@ async def main():
 
     ###### FiFO
 
-
-        data = rx_queue.get()
-        decode_ble_package(data)
+        if not rx_queue.empty():
+            data = rx_queue.get()
+            decode_ble_package(data)
 
 
     pygame.quit()

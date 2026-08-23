@@ -1,79 +1,31 @@
 import hardware.light_sensor
-from view.SensorView import SensorView
+from ui.ui_element import UiElement
 import pygame as pygame
 
 class Slider(UiElement):
-    def __init__(self,x_pos, y_pos, light_sensor):
-        super().__init__(x_pos, y_pos,150, 190,light_sensor.get_name())
-        self.light_sensor = light_sensor 
-        pass
+    def __init__(self,x_pos, y_pos, x_size, y_size, name):
+        super().__init__(x_pos, y_pos,x_size, y_size, name)
+        self.bkgColor = (200, 200, 40)
+        self.font = pygame.font.Font(None, 24)
+        self.extend = 0
+        self.value = 0.0
 
-    def draw(self):
-        super().draw()
+    def draw(self,context):
+        super().draw(context)
+        pygame.draw.rect(context, (255,0,0),(self.x_pos,self.y_pos,self.x_size,self.y_size),2)
 
-
-        pygame.draw.rect(self, (0,0,0),(9,50,128,128))
-
-        history_end = 180
-
-        pygame.draw.line(
-                        self,
-                        (255, 255, 255),
-                        (9, history_end-128),
-                        (9, history_end)
-                    )
-
-        pygame.draw.line(
-                        self,
-                        (255, 255, 255),
-                        (9, history_end),
-                        (137, history_end)
-                    )
+        x_pos = self.x_pos + 1
+        y_pos = self.y_size - self.extend + self.y_pos
+        x_extend = self.x_size - 2 
+        y_extend = self.extend -2
+        pygame.draw.rect(
+                         context,
+                         (150,50,50),
+                         pygame.Rect(x_pos, y_pos , x_extend, y_extend) ) 
 
 
-        history = self.light_sensor.get_history()
-        values = list(history)
-        prev_x = 0;
-        prev_y = 0;
-        actual_x = 10;
-        actual_y = history_end;
-
-        for i in range(len(values) - 1):
-            value = values[i]
-            value = value * 128
-
-            prev_x = actual_x
-            prev_y = actual_y
-
-            actual_x = actual_x +2
-            actual_y = int(180-value)
-
-            pygame.draw.line(
-                    self,
-                    (0, 255, 0),
-                    (prev_x, int(prev_y)),
-                    (prev_x, int(actual_y))
-            )
-
-
-            pygame.draw.line(
-                self,
-                (0, 255, 0),
-                (prev_x+1, int(actual_y)),
-                (prev_x+1, int(actual_y+1))
-            )
-
-
-
-
-        intensity = self.light_sensor.get_intensity()
-        intensity_string = f"{intensity:.3f}"
-        text = self.font.render(
-            intensity_string,
-            True,
-            (255, 255, 255)
-        )
-
-        self.blit(text, (10, 30))
-
-
+    def on_mouse_left(self,point):
+        super().on_mouse_left(point)
+        self.extend = self.y_size- 1 -point[1]
+        self.value = float(self.extend / (self.y_size -1))
+        print(self.value)

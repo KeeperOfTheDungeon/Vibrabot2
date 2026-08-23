@@ -1,68 +1,54 @@
-from pygame import Surface
+from ui.internal_window import InternalWindow
 import pygame as pygame
 
-class SensorView(Surface):
+class SensorView(InternalWindow):
     def __init__(self, x_pos, y_pos, width, height, name):
-        super().__init__((width, height))
-        
-        self.width = width
-        self.height = height
+        super().__init__(x_pos ,y_pos, width, height, name)
+        self.bkgColor = (40, 40, 40)
         self.font = pygame.font.Font(None, 24)
-        self.name = name
-        self.x_pos = x_pos
-        self.y_pos = y_pos
+        self.component_list = list()
+  
+    def addComponent(self, ui_component):
+        self.component_list.append(ui_component)
 
-    def set_pos(self, x_pos, y_pos):
-        self.x_pos = x_pos
-        self.y_pos = y_pos
-
-    def get_x_pos(self):
-        return (self.x_pos)
-
-    def get_y_pos(self):
-        return (self.y_pos)
-
-    def get_name(self):
-        return (self.name)
-
-    def contains_point(self, point):
-        x_pos = point[0]
-        y_pos = point[1]
-
-        if (self.x_pos > x_pos):
-            return (False)
-        
-        if ((self.x_pos+ self.width) < x_pos):
-            return (False)
-        
-        if (self.y_pos > y_pos):
-            return (False)
-        
-        if ((self.y_pos+ self.height) < y_pos):
-            return (False)
-
-        return(True)
-
-    def on_mouse(self,point):
-        x_pos = point[0] -self.x_pos
-        y_pos = point[1]- self.y_pos
-
-        print(x_pos)
-        print(y_pos)
 
     def draw(self):
-        self.fill((40, 40, 40))
-        
-        pygame.draw.rect(self, (255, 255, 255), (0, 0, self.width, self.height), 2)
-        pygame.draw.rect(self, (0, 0, 255), (2, 2, self.width-4, 26), 14)
+        super().draw()        
+        pygame.draw.rect(self, (255, 255, 255), (0, 0, self.x_size, self.y_size), 2)
+        pygame.draw.rect(self, (0, 0, 255), (2, 2, self.x_size-4, 26), 14)
 
         text = self.font.render(
             self.name,
             True,
             (255, 255, 255)
         )
-
+    
         self.blit(text, (10, 8))
 
+
+    def on_mouse_left(self, position):
+        print("on mouse left sv")
+        component, local_position  = self.get_component_on_position(position)
+
+        if component != None:
+            print(component.get_name())   
+            local_x = local_position[0] - component.get_x_pos() 
+            local_y = local_position[1] - component.get_y_pos()
+            local = (local_x, local_y)
+            component.on_mouse_left(local)
+
+
+    def get_component_on_position(self, position):
+
+        for component in self.component_list:
+            x_pos = position[0] -self.x_pos 
+            y_pos = position[1]- self.y_pos 
+            local = (x_pos, y_pos)
+            component_position = (local)
+            if component.contains_point(component_position):
+                return(component ,component_position )
+
+        return(None,(0,0))
+     
 
 

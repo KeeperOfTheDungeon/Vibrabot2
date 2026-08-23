@@ -1,79 +1,25 @@
-import hardware.light_sensor
+from ui.slider import Slider
 from view.SensorView import SensorView
 import pygame as pygame
 
-class view_light_sensor(SensorView):
-    def __init__(self,x_pos, y_pos, motor
-        super().__init__(x_pos, y_pos,150, 190,light_sensor.get_name())
-        self.light_sensor = light_sensor 
-        pass
+class MotorView(SensorView):
+    def __init__(self,x_pos, y_pos, motor_left,motor_right):
+        super().__init__(x_pos, y_pos,100, 200,"motors")
+        self.motor_left = motor_left 
+        self.motor_right = motor_right 
+        self.left_motor_slider = Slider(10,30,30,100,"left")
+        self.right_motor_slider = Slider(50,30,30,100,"right")
+        self.addComponent(self.left_motor_slider)
+        self.addComponent(self.right_motor_slider)
+
+        #self.bkgColor = (100, 100, 40)
 
     def draw(self):
         super().draw()
+        self.left_motor_slider.draw(self)
+        self.right_motor_slider.draw(self)
+        
 
-
-        pygame.draw.rect(self, (0,0,0),(9,50,128,128))
-
-        history_end = 180
-
-        pygame.draw.line(
-                        self,
-                        (255, 255, 255),
-                        (9, history_end-128),
-                        (9, history_end)
-                    )
-
-        pygame.draw.line(
-                        self,
-                        (255, 255, 255),
-                        (9, history_end),
-                        (137, history_end)
-                    )
-
-
-        history = self.light_sensor.get_history()
-        values = list(history)
-        prev_x = 0;
-        prev_y = 0;
-        actual_x = 10;
-        actual_y = history_end;
-
-        for i in range(len(values) - 1):
-            value = values[i]
-            value = value * 128
-
-            prev_x = actual_x
-            prev_y = actual_y
-
-            actual_x = actual_x +2
-            actual_y = int(180-value)
-
-            pygame.draw.line(
-                    self,
-                    (0, 255, 0),
-                    (prev_x, int(prev_y)),
-                    (prev_x, int(actual_y))
-            )
-
-
-            pygame.draw.line(
-                self,
-                (0, 255, 0),
-                (prev_x+1, int(actual_y)),
-                (prev_x+1, int(actual_y+1))
-            )
-
-
-
-
-        intensity = self.light_sensor.get_intensity()
-        intensity_string = f"{intensity:.3f}"
-        text = self.font.render(
-            intensity_string,
-            True,
-            (255, 255, 255)
-        )
-
-        self.blit(text, (10, 30))
+        
 
 

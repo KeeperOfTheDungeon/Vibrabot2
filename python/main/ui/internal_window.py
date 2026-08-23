@@ -1,8 +1,9 @@
 from pygame import Surface
 import pygame as pygame
 
-class UiElement():
+class InternalWindow(Surface):
     def __init__(self,x_pos, y_pos, x_size, y_size, name):
+        super().__init__((x_size, y_size))
         self.x_pos = x_pos
         self.y_pos = y_pos
         self.x_size = x_size
@@ -12,12 +13,14 @@ class UiElement():
 
     def set_pos(self, x_pos, y_pos):
         self.x_pos = x_pos
-        self.y_pos = y_pos
+        self.y_pos = y_possel
 
     
-    def draw(self, context):
-        pass
-    
+    def draw(self):
+        self.fill(self.bkgColor)
+
+
+
     def get_x_pos(self):
         return (self.x_pos)
 
@@ -53,6 +56,6 @@ class UiElement():
     def on_mouse_left(self,point):
         x_pos = point[0] -self.x_pos
         y_pos = point[1]- self.y_pos
-
+        print("internal")
         print(x_pos)
         print(y_pos)
