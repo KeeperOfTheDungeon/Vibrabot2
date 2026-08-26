@@ -1,5 +1,6 @@
 import queue
 
+from ble.ble import Ble
 from hardware.light_sensor import Light_sensor
 from hardware.AudioSensor import AudioSensor
 from hardware.ProximitySensor import ProximitySensor
@@ -43,21 +44,27 @@ class Vibrabot(Robot):
         self.rx_queue = queue.Queue()
         self.tx_queue = queue.Queue()
 
-      #  ble = Ble(rx_queue,tx_queue)
+        ble = Ble(self.rx_queue,self.tx_queue)
 
 
     def process(self):
-        super().process(self)
+        #super().process(self)
 
-        if not self.rx_queue.empty():
-            data = self.rx_queue.get()
-            self.decode_ble_package(data)
+        while True:
+            try:
+                data = self.rx_queue.get_nowait()
+            except queue.Empty:
+                break
 
+            self.decode_com_package(data)
+            print("process")
+
+        print("*********************process end")
         
 
 
     def decode_com_package(self, package):
-        super().decode_com_package(package)
+        #super().decode_com_package(package)
         value = int.from_bytes(package[0:1], byteorder='little')
     
         match  value:
@@ -125,24 +132,24 @@ class Vibrabot(Robot):
 
         value  = int.from_bytes(package[position :position +2], byteorder='little')
         f = float(value)/4906
-        self.left_proximity_sensor.set_intensity(f)
+        self.proximity_sensor_left.set_intensity(f)
 
         position += 2
         value  = int.from_bytes(package[position :position +2], byteorder='little')
         f = float(value)/4906
-        self.center_proximity_sensor.set_intensity(f)
+        self.proximity_sensor_center.set_intensity(f)
 
         position += 2
         value  = int.from_bytes(package[position :position +2], byteorder='little')
         f = float(value)/4906
-        self.right_proximity_sensor.set_intensity(f)
+        self.proximity_sensor_right.set_intensity(f)
 
         position += 2
         value  = int.from_bytes(package[position :position +2], byteorder='little')
         f = float(value)
         
-        self.left_proximity_sensor.set_status(f)
-        self.center_proximity_sensor.set_status(f)
-        self.right_proximity_sensor.set_status(f)
+        self.proximity_sensor_left.set_status(f)
+        self.proximity_sensor_center.set_status(f)
+        self.proximity_sensor_right.set_status(f)
         
     

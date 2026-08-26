@@ -93,19 +93,9 @@ bool Robot::sendIrData()
       value[2] = this->center_ir_sensor.getIntensity();  // ir Sensor right
       value[3] = this->right_ir_sensor.getIntensity();  // ir Sensor clear
       value[4] = this->irSwitch.getStatus(); // status of the ir leds
-	     
-   //    uint32_t start = micros();
-   //    pinMode(9, OUTPUT);
-    //  digitalWrite(9,HIGH);
-      bool success = ble.sendDataBlock((uint8_t*)value, 10);
-   //   digitalWrite(9,LOW);
 
-   //   uint32_t duration = micros() - start;
-
-   //   Serial.print(success);
-   //   Serial.print("  ");
-   //   Serial.println(duration);
-
+      bool success = ble.sendDataBlock((uint8_t*)value, 30);
+   
 
   return success;
 }
@@ -148,7 +138,7 @@ void Robot::process(void)
  
   if (this->microphone.is_magnitudeReady())
   {
-  //  this->sendFftData();
+    this->sendFftData();
 
   }
   this->microphone.processFft();

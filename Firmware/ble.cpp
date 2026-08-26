@@ -1,4 +1,6 @@
 #include <bluefruit.h>
+
+#include <bluefruit.h>
 #include "inc/ble.h"
 
 
@@ -37,10 +39,29 @@ void Ble::init()
 
     Serial.println("Starting BLE...");
 
+
+    Bluefruit.configPrphConn(
+        247,  // MTU
+        100,  // Event length
+        10,   // Notification queue
+        10    // Write command queue
+    );
+
+    Bluefruit.configPrphConn(
+        247,
+        100,
+        10,
+        10
+    );
+
+    Bluefruit.configPrphBandwidth(BANDWIDTH_MAX);
+
+
+
+
     Bluefruit.begin();
 
     Bluefruit.setName("VibraBot");
-
 
     // -----------------------------------------------------
     // Service
@@ -128,13 +149,33 @@ bool Ble::sendDataBlock(
     const uint8_t* data,
     uint16_t length)
 {
+    
     if (!Bluefruit.connected())
+    {
         return false;
+    }
+        
 
     if (length > 244)
         return false;
 
-    return txCharacteristic.notify(data, length);
+    bool succes = txCharacteristic.notify(data, length);
+
+    static uint32_t packet = 0;
+    static uint32_t last = 0;
+
+    uint32_t now = micros();
+
+    Serial.print("TX ");
+    Serial.print(packet);
+    Serial.print(" dt=");
+    Serial.println(now - last);
+
+    last = now;
+
+    packet++;
+
+    return succes;
 }
 
 

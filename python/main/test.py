@@ -166,8 +166,7 @@ class Robot_test:
 # Welt
 # ----------------------------
 
-rx_queue = queue.Queue()
-tx_queue = queue.Queue()
+
 
 ls = Light_sensor("left eye")
 ls2 = Light_sensor("right eye")
@@ -183,97 +182,6 @@ right_motor = Motor("right")
 
 
 window_manager = WindowManager()
-
-
-def decode_ble_package(package):
-        value = int.from_bytes(package[0:1], byteorder='little')
-
-        #print (value)
-
-        match  value:
-            case  0xa0:
-                decode_ble_light_Package(package)
-            case 0xa1:
-                decode_ble_proximity_Package(package)
-            case 0xB0:
-                decode_ble_fft_Package(package)
-
-
-
-def decode_ble_fft_Package(package):
-    spectrum = AudioSpectrum()
-    position = 2
-    
-    for index in  range(3):
-        bin = int.from_bytes(package[position :position +2], byteorder='little')
-
-        level = int.from_bytes(package[position+2 :position +4], byteorder='little')
-        spectrum.set_bin(index, bin,level)
-        position = position + 4
-
-    audio_sensor.add(spectrum)
-
-
-
-def decode_ble_light_Package(package):
-    value = int.from_bytes(package[2:4], byteorder='little')
-    f = float(value)/4906
-    ls.set_intensity(f )  
-    
-    value = int.from_bytes(package[4:6], byteorder='little')
-    f = float(value)/4906
-    ls2.set_intensity(f )  
-
-    value = int.from_bytes(package[6:8], byteorder='little')
-    f = float(value)/65536
-    color_sensor.set_intensity(0,f)  
-
-    value = int.from_bytes(package[8:10], byteorder='little')
-    f = float(value)/65536
-    f = f * (34.0 / 41.0)
-    color_sensor.set_intensity(1,f)  
-
-    value = int.from_bytes(package[10:12], byteorder='little')
-    f = float(value)/65536
-    f = f * (34.0 / 39.0)
-    color_sensor.set_intensity(2,f)  
-
-    value = int.from_bytes(package[12:14], byteorder='little')
-    f = float(value)/65536
-    color_sensor.set_intensity(3,f)  
-
-    value = int.from_bytes(package[14:16], byteorder='little')
-    f = float(value)/65536
-    color_sensor.set_intensity(4,f)  
-
-
-
-def decode_ble_proximity_Package(package):
-
-    position = 2
-
-    value  = int.from_bytes(package[position :position +2], byteorder='little')
-    f = float(value)/4906
-    left_proximity_sensor.set_intensity(f)
-
-    position += 2
-    value  = int.from_bytes(package[position :position +2], byteorder='little')
-    f = float(value)/4906
-    center_proximity_sensor.set_intensity(f)
-
-    position += 2
-    value  = int.from_bytes(package[position :position +2], byteorder='little')
-    f = float(value)/4906
-    right_proximity_sensor.set_intensity(f)
-
-    position += 2
-    value  = int.from_bytes(package[position :position +2], byteorder='little')
-    f = float(value)
-     
-    left_proximity_sensor.set_status(f)
-    center_proximity_sensor.set_status(f)
-    right_proximity_sensor.set_status(f)
-    
    
 
 
@@ -303,35 +211,18 @@ async def main():
     vibrabot_viever = VibrabotViewer(vibrabot)
 
     robot = Robot_test(100,100)
-# light sensor
-   # left_light_sensor_view = view_light_sensor(696, 10,ls)
-   # right_light_sensor_view = view_light_sensor(848, 10,ls2)
-   # color_sensor_view = ViewColorSensor(696, 478, color_sensor)
-   # audio_sensor_view = ViewAudioSensor(696, 650, audio_sensor)
 
-   # left_proximity_sensor_view = ProximitySensorView(696, 202, left_proximity_sensor)
-   # center_proximity_sensor_view = ProximitySensorView(696, 294, center_proximity_sensor)
-   # right_proximity_sensor_view = ProximitySensorView(696, 386, right_proximity_sensor)
-   # motor_view = MotorView(886, 478, left_motor, right_motor)
 
     # ----------------------------
     # Hauptschleife
     # ----------------------------
 
-   # window_manager.add(left_light_sensor_view)
-   # window_manager.add(right_light_sensor_view)
-
-   # window_manager.add(left_proximity_sensor_view)
-   # window_manager.add(center_proximity_sensor_view)
-   # window_manager.add(right_proximity_sensor_view)
-
-    #window_manager.add(color_sensor_view)
-   # window_manager.add(audio_sensor_view)
-   # window_manager.add(motor_view)
+ 
 
     running = True
 
     while running:
+        vibrabot.process()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -402,11 +293,7 @@ async def main():
 
     ###### FiFO
 
-        if not rx_queue.empty():
-            data = rx_queue.get()
-            decode_ble_package(data)
-
-
+ 
     pygame.quit()
 
 asyncio.run(main())    
