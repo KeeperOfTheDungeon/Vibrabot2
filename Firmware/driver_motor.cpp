@@ -3,8 +3,8 @@
 #include "inc/driver_motor.h"
 
 static uint16_t pwm_values[2] = {
-    100,    // P1.11 = 50 %
-    100     // P1.15 = 50 %
+    255,    // P1.11 = 50 %
+    255     // P1.15 = 50 %
 };
 
 void DriverMotor::init()
@@ -14,12 +14,12 @@ void DriverMotor::init()
     Serial.println("***********init Motors**********");
    // P1.11 -> PWM0 channel 0
     NRF_PWM1->PSEL.OUT[0] =
-        (43 << PWM_PSEL_OUT_PIN_Pos) |
+        (47 << PWM_PSEL_OUT_PIN_Pos) |
         (0 << PWM_PSEL_OUT_CONNECT_Pos);
 
     // P1.15 -> PWM0 channel 1
     NRF_PWM1->PSEL.OUT[1] =
-        (47 << PWM_PSEL_OUT_PIN_Pos) |
+        (43 << PWM_PSEL_OUT_PIN_Pos) |
         (0 << PWM_PSEL_OUT_CONNECT_Pos);
 
     NRF_PWM1->ENABLE = (PWM_ENABLE_ENABLE_Enabled << PWM_ENABLE_ENABLE_Pos);
@@ -50,4 +50,16 @@ void DriverMotor::init()
     // Start sequence
     NRF_PWM1->TASKS_SEQSTART[0] = 1;
 }
+
+
+void DriverMotor::setMotorValues(uint8_t leftMotor, uint8_t rightMotor)
+{
+    pwm_values[0] = 255-leftMotor;
+    pwm_values[1] = 255-rightMotor;
+    Serial.println("Set Motor");
+    NRF_PWM1->TASKS_SEQSTART[0] = 1;
+
+}
+
+
 

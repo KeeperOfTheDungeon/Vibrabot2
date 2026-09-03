@@ -2,7 +2,7 @@
 #define ROBOT_H_
 
 
-#include "inc/led.h"
+#include "led.h"
 #include "inc/ble.h"
 #include "inc/light_sensor.h"
 #include "inc/ir_sensor.h"
@@ -15,9 +15,14 @@
 #include "inc/switch.h"
 
 
-#define PACKAGE_VISIBLE_SENSOR_DATA 0xA0
-#define PACKAGE_IR_SENSOR_DATA 0xA1
-#define PACKAGE_FFT_DATA 0xB0
+
+
+#define PACKAGE_VISIBLE_SENSOR_DATA 	0xA0
+#define PACKAGE_IR_SENSOR_DATA 		0xA1
+#define PACKAGE_FFT_DATA 		0xA2
+
+
+#define PACKAGE_MOTOR_DATA	 	0xB0
 
 
 class Robot{
@@ -43,6 +48,10 @@ class Robot{
 		DriverMotor driver_motor;
 		Switch irSwitch;
 		
+
+		void decodeBlePackage(uint8_t * dataBlock);
+
+		void processMotorData(uint8_t * dataBlock);
 
 	public:	
 		void init();

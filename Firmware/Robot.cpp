@@ -59,6 +59,12 @@ void Robot::ProcessAnalogData()
   
   value =  ADC_MAX_VALUE - driver_adc.get(4);
   this->right_ir_sensor.setIntensity(value);
+
+
+  value = driver_adc.get(5);
+  Serial.print("bat :");
+  Serial.println(value);
+
 }
 
 
@@ -98,6 +104,36 @@ bool Robot::sendIrData()
    
 
   return success;
+}
+
+
+void Robot::decodeBlePackage(uint8_t * dataBlock)
+{
+
+  uint8_t command =  dataBlock[0];
+
+
+  Serial.print("Decode");
+  Serial.println(command);
+
+  switch(command)
+  {
+    case PACKAGE_MOTOR_DATA	 : 
+      this->processMotorData(dataBlock);
+      break;
+  }
+
+}
+
+
+
+void Robot::processMotorData(uint8_t * dataBlock)
+{
+  uint8_t leftMotor = dataBlock[1];
+  uint8_t rightMotor = dataBlock[2];
+
+   this->driver_motor.setMotorValues(leftMotor, rightMotor);
+     Serial.print("Set Motors");
 }
 
 
@@ -164,7 +200,7 @@ void Robot::process(void)
       break;
 
     case 5:
-        this->irSwitch.off();
+       // this->irSwitch.off();
         this->driver_adc.adc_sample();
       break;
       
@@ -187,6 +223,7 @@ void Robot::process(void)
     uint16_t status = this->ble.receiveDataBlock(dataBlock,20);
     if (status>0)
     {
+      this->decodeBlePackage(dataBlock);
       //  Serial.println(status);
       //  uint32_t now = micros();
         //Serial.println(now);

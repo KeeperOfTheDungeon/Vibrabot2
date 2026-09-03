@@ -4,7 +4,7 @@
 
 #include "inc/driver_adc.h"
 
-#define ADC_CHANNEL_COUNT 5
+#define ADC_CHANNEL_COUNT 6
 typedef struct 
 {
     int16_t value[ADC_CHANNEL_COUNT];
@@ -43,7 +43,11 @@ void Driver_adc::init()
     this->init_channel(2, SAADC_CH_PSELP_PSELP_AnalogInput2);
     this->init_channel(3, SAADC_CH_PSELP_PSELP_AnalogInput5);
     this->init_channel(4, SAADC_CH_PSELP_PSELP_AnalogInput4);
-
+    this->init_channel(5, SAADC_CH_PSELP_PSELP_AnalogInput7);
+/*
+#define SAADC_CH_PSELP_PSELP_VDD (9UL) /!< VDD /
+#define SAADC_CH_PSELP_PSELP_VDDHDIV5 (0x0DUL) /!< VDDH/5 /
+*/
 //7 battery
 
     // --------------------------------------------------------
@@ -75,6 +79,11 @@ void Driver_adc::init()
     NRF_SAADC->TASKS_START = 1;
 
     NRF_SAADC->EVENTS_STARTED = 0;
+
+
+  //  NRF_P0->DIRSET = (1<<14);
+  //  NRF_P0->OUTCLR = (1<<14);
+  
 }
 
 

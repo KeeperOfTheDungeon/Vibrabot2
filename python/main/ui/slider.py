@@ -28,7 +28,12 @@ class Slider(UiElement):
     def on_mouse_left(self,point):
         super().on_mouse_left(point)
         self.extend = self.y_size- 1 -point[1]
-        self.value = float(self.extend / (self.y_size -1))
+        value = float(self.extend / (self.y_size -1))
+        if value > 0:
+            self.value = value
+        else:
+            self.value = 0
+
         print(self.value)
         for listener in self.listener_list:
             listener.slider_value_change(self)

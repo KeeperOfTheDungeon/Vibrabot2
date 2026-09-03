@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <nrf.h> 
 
+
 typedef struct {
     uint8_t a;
     uint8_t b;
@@ -15,7 +16,7 @@ class DriverMotor{
 	public: 
 	void init(void);
 
-  
+	void setMotorValues(uint8_t leftMotor, uint8_t rightMotor);
 };
 
 

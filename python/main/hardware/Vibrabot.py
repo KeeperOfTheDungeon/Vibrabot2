@@ -73,7 +73,7 @@ class Vibrabot(Robot):
                 self.send_motor_data()
             case 0xa1:
                 self.decode_ble_proximity_Package(package)
-            case 0xB0:
+            case 0xA2:
                 self.decode_ble_fft_Package(package)
 
 
@@ -161,7 +161,7 @@ class Vibrabot(Robot):
     def send_motor_data(self):
 
       
-        data_packet = bytearray([0xC0,0, 0])
+        data_packet = bytearray([0xB0,0, 0])
       
 
         left_motor_value = self.motor_left.get_control_value()
