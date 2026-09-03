@@ -35,3 +35,6 @@ class Slider(UiElement):
 
     def add_listener(self, listener):
         self.listener_list.append(listener)
+
+    def get_value(self):
+        return (self.value)

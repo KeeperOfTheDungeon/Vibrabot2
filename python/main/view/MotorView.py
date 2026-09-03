@@ -26,7 +26,8 @@ class MotorView(SensorView):
 
     def slider_value_change(self, component):
         print(component)
-
+        self.motor_left.set_control_value(self.left_motor_slider.get_value())
+        self.motor_right.set_control_value(self.right_motor_slider.get_value())
         
 
 

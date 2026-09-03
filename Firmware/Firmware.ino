@@ -51,8 +51,10 @@ void setup() {
 
    delay(1000);
   vibrabot.init();
+  
+  
   Serial.println ("init complete");
-
+  delay(1000);
 }
 
 

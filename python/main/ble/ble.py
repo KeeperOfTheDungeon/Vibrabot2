@@ -4,9 +4,10 @@ import time
 
 from bleak import BleakScanner, BleakClient
 
+
 class Ble:
-    def __init__(self,rx_queue,tx_queue):
-        self.callback  = self.notification_handler
+    def __init__(self, rx_queue, tx_queue):
+        self.callback = self.notification_handler
         self.rx_queue = rx_queue
         self.tx_queue = tx_queue
         self.start()
@@ -24,21 +25,21 @@ class Ble:
 
         try:
             self.loop.run_until_complete(self.connect(
-                "VibraBot",
-                "8b7c0002-1234-4abc-8def-123456789abc",
-                "8b7c0002-1234-4abc-8def-123456789abc"
+                    "VibraBot",
+                    "8b7c0002-1234-4abc-8def-123456789abc",
+                    "8b7c0003-1234-4abc-8def-123456789abc"
             ))
+            
         except Exception as e:
             print("BLE ERROR:", repr(e))
         finally:
             self.loop.close()
-        
-        self.loop.run_forever()
-   
+
+
+
     async def connect(self, device_name, TX_UUID, RX_UUID):
 
         print("=== CONNECT START ===")
-
         print("Scanning for VibraBot...")
 
         devices = await BleakScanner.discover()
@@ -58,13 +59,13 @@ class Ble:
 
         print(f"Found {device.name}: {device.address}")
 
-
         async with BleakClient(
             device,
             disconnected_callback=self.disconnected_callback
         ) as client:
+
             self.client = client
-        
+
             print("Connected")
 
             await client.start_notify(
@@ -72,23 +73,55 @@ class Ble:
                 self.notification_handler
             )
 
+            # Start sending task
+            send_task = asyncio.create_task(
+                self.send_loop(client, RX_UUID)
+            )
 
-            while client.is_connected:
-                await asyncio.sleep(1)
+            try:
+                while client.is_connected:
+                    await asyncio.sleep(1)
 
-            print("Connection lost")
+            finally:
+                send_task.cancel()
+
+                try:
+                    await send_task
+                except asyncio.CancelledError:
+                    pass
 
         self.client = None
 
+    async def send_loop(self, client, RX_UUID):
+
+        while client.is_connected:
+
+            try:
+                # Wait for data from the queue
+                value = await asyncio.to_thread(
+                    self.tx_queue.get
+                )
+
+                print("Sending:", value)
+                print("Queue size:", self.tx_queue.qsize())
+
+                await client.write_gatt_char(
+                    RX_UUID,
+                    value
+                )
+
+                self.tx_queue.task_done()
+
+            except Exception as e:
+                print("TX ERROR:", repr(e))
+                break
+
+            
+        print("connest end tx")
 
 
     def notification_handler(self, sender, data):
-        print(f"RX {len(data)} bytes  {time.perf_counter():.6f}")
-        print("RX queue:", self.rx_queue.qsize())
         self.rx_queue.put(bytes(data))
-        print("is in")
-    
 
-    def disconnected_callback(self,client):
+    def disconnected_callback(self, client):
         print("!!! BLE DISCONNECTED !!!")
-    

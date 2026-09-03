@@ -19,7 +19,7 @@ void Robot::init()
    Serial.println("***********init **********");
   ble.init();
 
-  microphone.init();
+ // microphone.init();
 
   this->left_light_sensor.init();
   this->right_light_sensor.init();
@@ -133,7 +133,7 @@ bool Robot::sendFftData()
 void Robot::process(void)
 {
  
-
+//Serial.println("alive");
 
  
   if (this->microphone.is_magnitudeReady())
@@ -178,8 +178,20 @@ void Robot::process(void)
       
           this->cycle_counter=0; 
       break; 
-
-      
+     
 
     }
+
+
+    uint8_t  dataBlock[20];
+    uint16_t status = this->ble.receiveDataBlock(dataBlock,20);
+    if (status>0)
+    {
+      //  Serial.println(status);
+      //  uint32_t now = micros();
+        //Serial.println(now);
+        Serial.printBuffer(dataBlock,3);
+        Serial.println("");
+    }
+
 }

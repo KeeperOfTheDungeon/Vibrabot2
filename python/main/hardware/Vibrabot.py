@@ -38,7 +38,7 @@ class Vibrabot(Robot):
         self.motor_left = Motor("left motor")
         self.add_component(self.motor_left)
 
-        self.motor_right = Motor("left motor")
+        self.motor_right = Motor("right motor")
         self.add_component(self.motor_right)
 
         self.rx_queue = queue.Queue()
@@ -57,10 +57,10 @@ class Vibrabot(Robot):
                 break
 
             self.decode_com_package(data)
-            print("process")
+ #           print("process")
 
-        print("*********************process end")
-        
+  #      print("*********************process end")
+
 
 
     def decode_com_package(self, package):
@@ -70,6 +70,7 @@ class Vibrabot(Robot):
         match  value:
             case  0xa0:
                 self.decode_ble_light_Package(package)
+                self.send_motor_data()
             case 0xa1:
                 self.decode_ble_proximity_Package(package)
             case 0xB0:
@@ -91,6 +92,7 @@ class Vibrabot(Robot):
 
             self.audio_sensor.add(spectrum)
 
+ 
 
 
     def decode_ble_light_Package(self, package):
@@ -151,5 +153,24 @@ class Vibrabot(Robot):
         self.proximity_sensor_left.set_status(f)
         self.proximity_sensor_center.set_status(f)
         self.proximity_sensor_right.set_status(f)
-        
+
+
+
     
+
+    def send_motor_data(self):
+
+      
+        data_packet = bytearray([0xC0,0, 0])
+      
+
+        left_motor_value = self.motor_left.get_control_value()
+        right_motor_value = self.motor_right.get_control_value()
+
+        data_packet[1] = int(left_motor_value *255)
+        data_packet[2] = int(right_motor_value *255)
+
+        self.tx_queue.put_nowait(data_packet)
+
+        print("Motor data send")
+        print("Queue size:", self.tx_queue.qsize())  

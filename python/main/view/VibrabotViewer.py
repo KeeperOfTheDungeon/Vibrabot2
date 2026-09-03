@@ -1,3 +1,4 @@
+
 from view.ProximitySensorView import ProximitySensorView
 from view.RobotViewer import RobotViewer
 
@@ -5,6 +6,7 @@ import pygame as pygame
 from view.ViewAudioSensor import ViewAudioSensor
 from view.ViewColorSensor import ViewColorSensor
 from view.view_light_sensor import view_light_sensor
+from view.MotorView import MotorView
 
 class VibrabotViewer(RobotViewer):
     def __init__(self, vibrabot):
@@ -20,6 +22,7 @@ class VibrabotViewer(RobotViewer):
 
         view = view_class(x, y, component)
         self.window_manager.add(view)
+
 
     def bulid_views(self):
 
@@ -71,10 +74,18 @@ class VibrabotViewer(RobotViewer):
             696,
             386
         )
-        
 
-            #motor_view = MotorView(886, 478, left_motor, right_motor)
+        left_motor = self.robot.get_component_on_name("left motor")
+        if left_motor is None:
+            return # make later an exception !
+
+        right_motor = self.robot.get_component_on_name("right motor")
+        if left_motor is None:
+            return # make later an exception !
         
+        motor_view = MotorView(886, 478,left_motor, right_motor)
+        self.window_manager.add(motor_view)
+
 
 
 

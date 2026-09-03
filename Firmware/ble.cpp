@@ -47,13 +47,7 @@ void Ble::init()
         10    // Write command queue
     );
 
-    Bluefruit.configPrphConn(
-        247,
-        100,
-        10,
-        10
-    );
-
+ 
     Bluefruit.configPrphBandwidth(BANDWIDTH_MAX);
 
 
@@ -160,7 +154,7 @@ bool Ble::sendDataBlock(
         return false;
 
     bool succes = txCharacteristic.notify(data, length);
-
+/*
     static uint32_t packet = 0;
     static uint32_t last = 0;
 
@@ -174,7 +168,8 @@ bool Ble::sendDataBlock(
     last = now;
 
     packet++;
-
+*/
+ //   Serial.println("TX ");
     return succes;
 }
 
