@@ -152,8 +152,10 @@ bool Ble::sendDataBlock(
 
     if (length > 244)
         return false;
-
+        
+    digitalWrite(9 ,HIGH);    
     bool succes = txCharacteristic.notify(data, length);
+    digitalWrite(9 ,LOW);    
 /*
     static uint32_t packet = 0;
     static uint32_t last = 0;

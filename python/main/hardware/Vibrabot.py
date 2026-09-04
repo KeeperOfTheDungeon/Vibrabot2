@@ -76,8 +76,6 @@ class Vibrabot(Robot):
             case  0xa0:
                 self.decode_ble_light_Package(package)
                 self.send_motor_data()
-            case 0xa1:
-                self.decode_ble_proximity_Package(package)
             case 0xA2:
                 self.decode_ble_fft_Package(package)
 
@@ -98,9 +96,13 @@ class Vibrabot(Robot):
             self.audio_sensor.add(spectrum)
 
  
-
-
     def decode_ble_light_Package(self, package):
+        self.decode_ble_light_data(package)
+        self.decode_ble_color_data(package)
+        self.decode_ble_proximity_data(package)
+
+
+    def decode_ble_light_data(self, package):
         value = int.from_bytes(package[2:4], byteorder='little')
         f = float(value)/4906
         self.light_sensor_left.set_intensity(f )  
@@ -109,6 +111,9 @@ class Vibrabot(Robot):
         f = float(value)/4906
         self.light_sensor_right.set_intensity(f )  
 
+
+
+    def decode_ble_color_data(self, package):
         value = int.from_bytes(package[6:8], byteorder='little')
         f = float(value)/65536
         self.color_sensor.set_intensity(0,f)  
@@ -133,40 +138,52 @@ class Vibrabot(Robot):
         f = float(value)/65536
         self.color_sensor.set_intensity(4,f)  
 
-        value = int.from_bytes(package[16:18], byteorder='little')
+
+
+    def decode_ble_proximity_data(self, package):
+        value  = int.from_bytes(package[16:18], byteorder='little')
+        f = float(value)/4906
+        self.proximity_sensor_left.set_intensity(f)
+
+
+        value  = int.from_bytes(package[20:22], byteorder='little')
+        f = float(value)/4906
+        self.proximity_sensor_center.set_intensity(f)
+
+        value  = int.from_bytes(package[24:26], byteorder='little')
+        f = float(value)/4906
+        self.proximity_sensor_right.set_intensity(f)
+        
+        self.proximity_sensor_left.set_status(False)
+        self.proximity_sensor_center.set_status(False)
+        self.proximity_sensor_right.set_status(False)
+
+
+        value  = int.from_bytes(package[18:20], byteorder='little')
+        f = float(value)/4906
+        self.proximity_sensor_left.set_intensity(f)
+
+
+        value  = int.from_bytes(package[22:24], byteorder='little')
+        f = float(value)/4906
+        self.proximity_sensor_center.set_intensity(f)
+
+        value  = int.from_bytes(package[26:28], byteorder='little')
+        f = float(value)/4906
+        self.proximity_sensor_right.set_intensity(f)
+
+       
+        
+        self.proximity_sensor_left.set_status(True)
+        self.proximity_sensor_center.set_status(True)
+        self.proximity_sensor_right.set_status(True)
+
+
+        value = int.from_bytes(package[28:30], byteorder='little')
         f = float(value)/4095
         print(f)
         self.battery_sensor.set_capacity(f)  
  
-
-    def decode_ble_proximity_Package(self, package):
-
-        position = 2
-
-        value  = int.from_bytes(package[position :position +2], byteorder='little')
-        f = float(value)/4906
-        self.proximity_sensor_left.set_intensity(f)
-
-        position += 2
-        value  = int.from_bytes(package[position :position +2], byteorder='little')
-        f = float(value)/4906
-        self.proximity_sensor_center.set_intensity(f)
-
-        position += 2
-        value  = int.from_bytes(package[position :position +2], byteorder='little')
-        f = float(value)/4906
-        self.proximity_sensor_right.set_intensity(f)
-
-        position += 2
-        value  = int.from_bytes(package[position :position +2], byteorder='little')
-        f = float(value)
-        
-        self.proximity_sensor_left.set_status(f)
-        self.proximity_sensor_center.set_status(f)
-        self.proximity_sensor_right.set_status(f)
-
-
-
     
 
     def send_motor_data(self):

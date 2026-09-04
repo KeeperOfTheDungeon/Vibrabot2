@@ -168,21 +168,6 @@ class Robot_test:
 
 
 
-ls = Light_sensor("left eye")
-ls2 = Light_sensor("right eye")
-color_sensor = ColorSensor("color Sensor") 
-audio_sensor =AudioSensor("Spectrum")
-
-left_proximity_sensor = ProximitySensor("left proximity")
-center_proximity_sensor = ProximitySensor("center proximity")
-right_proximity_sensor = ProximitySensor("right proximity")
-
-left_motor = Motor("left")
-right_motor = Motor("right")
-
-
-window_manager = WindowManager()
-   
 
 
 async def main():

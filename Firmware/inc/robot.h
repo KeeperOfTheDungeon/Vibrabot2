@@ -26,15 +26,38 @@
 #define PACKAGE_MOTOR_DATA	 	0xB0
 
 
+typedef struct{
+	uint8_t  data_type;
+	uint8_t  reserved;
+
+	uint16_t eye_left;
+	uint16_t eye_right;
+
+	uint16_t color_sensor_clear;
+	uint16_t color_sensor_red;
+	uint16_t color_sensor_green;
+	uint16_t color_sensor_blue;
+	uint16_t color_sensor_ir;
+
+	uint16_t proximity_sensor_left[2];
+	uint16_t proximity_sensor_center[2];
+	uint16_t proximity_sensor_right[2];
+
+	uint16_t battery_capacity;
+	uint16_t temperature;
+
+} Ble_sensor_data_t;
+
+
 class Robot{
 	private:
 		uint8_t cycle_counter;
-		LightSensor left_light_sensor;
- 		LightSensor right_light_sensor;
+		LightSensor light_sensor_left;
+ 		LightSensor light_sensor_right;
 
-		IrSensor left_ir_sensor;
- 		IrSensor center_ir_sensor;
-  		IrSensor right_ir_sensor;
+		IrSensor proximity_sensor_left;
+ 		IrSensor proximity_sensor_center;
+  		IrSensor proximity_sensor_right;
 		Battery battery;
 
 		Microphone microphone;
@@ -53,6 +76,9 @@ class Robot{
 		void decodeBlePackage(uint8_t * dataBlock);
 
 		void processMotorData(uint8_t * dataBlock);
+		Ble_sensor_data_t bleSensorData; 
+		void prepareSensorData();
+		void prepareIrSensorData();
 
 	public:	
 		void init();
@@ -60,10 +86,8 @@ class Robot{
 
 
 		void ProcessAnalogData();
-
-		bool sendVisibleData();
-		bool sendIrData();
 		bool sendFftData();
+		bool sendSensorData();
 
-};
+};	
 #endif

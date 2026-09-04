@@ -21,13 +21,13 @@ void Robot::init()
 
  // microphone.init();
   this->battery.init();
-  this->left_light_sensor.init();
-  this->right_light_sensor.init();
+  this->light_sensor_left.init();
+  this->light_sensor_right.init();
 
 
-  this->left_ir_sensor.init();
-  this->center_ir_sensor.init();
-  this->right_ir_sensor.init();
+  this->proximity_sensor_left.init();
+  this->proximity_sensor_center.init();
+  this->proximity_sensor_right.init();
   this->color_sensor.init();
   this->irSwitch.init(0,0);
 
@@ -45,20 +45,20 @@ void Robot::ProcessAnalogData()
 {
   uint16_t value;
   value =  ADC_MAX_VALUE - driver_adc.get(0);
-  this->left_light_sensor.setIntensity(value);
+  this->light_sensor_left.setIntensity(value);
 
   value =  ADC_MAX_VALUE - driver_adc.get(1);
-  this->right_light_sensor.setIntensity(value);
+  this->light_sensor_right.setIntensity(value);
 
 
   value =  ADC_MAX_VALUE - driver_adc.get(2);
-  this->left_ir_sensor.setIntensity(value);   
+  this->proximity_sensor_left.setIntensity(value);   
   
   value =  ADC_MAX_VALUE - driver_adc.get(3);
-  this->center_ir_sensor.setIntensity(value);
+  this->proximity_sensor_center.setIntensity(value);
   
   value =  ADC_MAX_VALUE - driver_adc.get(4);
-  this->right_ir_sensor.setIntensity(value);
+  this->proximity_sensor_right.setIntensity(value);
 
 
   value = driver_adc.get(5);
@@ -68,46 +68,45 @@ void Robot::ProcessAnalogData()
 
 }
 
-
-
-
-bool Robot::sendVisibleData()
+void Robot::prepareSensorData()
 {
-      uint16_t value[12];
-      value[0] = PACKAGE_VISIBLE_SENSOR_DATA ;
-      value[1] = this->left_light_sensor.getIntensity();   // Light Sensor left
-      value[2] = this->right_light_sensor.getIntensity();  // Light Sensor right
+
+  this->bleSensorData.data_type = PACKAGE_VISIBLE_SENSOR_DATA;
+
+  this->bleSensorData.eye_left = this->light_sensor_left.getIntensity();
+  this->bleSensorData.eye_right = this->light_sensor_right.getIntensity();
+
+  this->bleSensorData.color_sensor_clear = this->color_sensor.getIntensity(0);
+  this->bleSensorData.color_sensor_red = this->color_sensor.getIntensity(1);
+  this->bleSensorData.color_sensor_green = this->color_sensor.getIntensity(2);
+  this->bleSensorData.color_sensor_blue = this->color_sensor.getIntensity(3);
+  this->bleSensorData.color_sensor_ir = this->color_sensor.getIntensity(4);
+
+  this->bleSensorData.proximity_sensor_left[0] =  this->proximity_sensor_left.getIntensity(); 
+  this->bleSensorData.proximity_sensor_center[0] = this->proximity_sensor_center.getIntensity(); 
+  this->bleSensorData.proximity_sensor_right[0] =  this->proximity_sensor_right.getIntensity(); 
+
+   this->bleSensorData.battery_capacity = this->battery.getCapacity();
+   this->bleSensorData.temperature = 6;
+}
 
 
-      value[3] = this->color_sensor.getIntensity(0);  // Color Sensor clear
-      value[4] = this->color_sensor.getIntensity(1);  // Color Sensor Red
-      value[5] = this->color_sensor.getIntensity(2);  // Color Sensor Green
-      value[6] = this->color_sensor.getIntensity(3);  // Color Sensor Blue
-      value[7] = this->color_sensor.getIntensity(4);  // Color Sensor IR
-      
-      value[8] = this->battery.getCapacity();
+void Robot::prepareIrSensorData()
+{
+  this->bleSensorData.proximity_sensor_left[1] =  this->proximity_sensor_left.getIntensity(); 
+  this->bleSensorData.proximity_sensor_center[1] = this->proximity_sensor_center.getIntensity(); 
+  this->bleSensorData.proximity_sensor_right[1] =  this->proximity_sensor_right.getIntensity(); 
 
-      bool succes = ble.sendDataBlock((uint8_t*)value, 18);
-    
+}
+
+bool Robot::sendSensorData()
+{
+      bool succes = ble.sendDataBlock((uint8_t*)&this->bleSensorData, sizeof(Ble_sensor_data_t));
+      //if (not succes)   red led
   return succes;
 }
 
 
-
-bool Robot::sendIrData()
-{
-      uint16_t value[5];
-      value[0] = PACKAGE_IR_SENSOR_DATA ;
-      value[1] = this->left_ir_sensor.getIntensity();   // ir Sensor left
-      value[2] = this->center_ir_sensor.getIntensity();  // ir Sensor right
-      value[3] = this->right_ir_sensor.getIntensity();  // ir Sensor clear
-      value[4] = this->irSwitch.getStatus(); // status of the ir leds
-
-      bool success = ble.sendDataBlock((uint8_t*)value, 30);
-   
-
-  return success;
-}
 
 
 void Robot::decodeBlePackage(uint8_t * dataBlock)
@@ -194,12 +193,7 @@ void Robot::process(void)
       
       case 2:
           this->ProcessAnalogData();
-          this->sendVisibleData();
-      break;
-
-
-      case 4:
-          this->sendIrData();
+          this->prepareSensorData();
       break;
 
     case 5:
@@ -209,7 +203,11 @@ void Robot::process(void)
       
       case 7:
           this->ProcessAnalogData();
-          this->sendIrData();
+          this->prepareIrSensorData();
+      break;
+
+      case 8:
+          this->sendSensorData();
       break;
 
 
