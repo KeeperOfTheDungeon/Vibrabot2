@@ -20,7 +20,7 @@ void Robot::init()
   ble.init();
 
  // microphone.init();
-
+  this->battery.init();
   this->left_light_sensor.init();
   this->right_light_sensor.init();
 
@@ -62,6 +62,7 @@ void Robot::ProcessAnalogData()
 
 
   value = driver_adc.get(5);
+  this->battery.setCapacity(value);
   Serial.print("bat :");
   Serial.println(value);
 
@@ -72,19 +73,21 @@ void Robot::ProcessAnalogData()
 
 bool Robot::sendVisibleData()
 {
-      uint16_t value[11];
+      uint16_t value[12];
       value[0] = PACKAGE_VISIBLE_SENSOR_DATA ;
-      value[1] = left_light_sensor.getIntensity();   // Light Sensor left
-      value[2] = right_light_sensor.getIntensity();  // Light Sensor right
+      value[1] = this->left_light_sensor.getIntensity();   // Light Sensor left
+      value[2] = this->right_light_sensor.getIntensity();  // Light Sensor right
 
 
-      value[3] = color_sensor.getIntensity(0);  // Color Sensor clear
-      value[4] = color_sensor.getIntensity(1);  // Color Sensor Red
-      value[5] = color_sensor.getIntensity(2);  // Color Sensor Green
-      value[6] = color_sensor.getIntensity(3);  // Color Sensor Blue
-      value[7] = color_sensor.getIntensity(4);  // Color Sensor IR
+      value[3] = this->color_sensor.getIntensity(0);  // Color Sensor clear
+      value[4] = this->color_sensor.getIntensity(1);  // Color Sensor Red
+      value[5] = this->color_sensor.getIntensity(2);  // Color Sensor Green
+      value[6] = this->color_sensor.getIntensity(3);  // Color Sensor Blue
+      value[7] = this->color_sensor.getIntensity(4);  // Color Sensor IR
+      
+      value[8] = this->battery.getCapacity();
 
-      bool succes = ble.sendDataBlock((uint8_t*)value, 16);
+      bool succes = ble.sendDataBlock((uint8_t*)value, 18);
     
   return succes;
 }
@@ -200,7 +203,7 @@ void Robot::process(void)
       break;
 
     case 5:
-       // this->irSwitch.off();
+        this->irSwitch.off();
         this->driver_adc.adc_sample();
       break;
       

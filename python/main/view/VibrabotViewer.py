@@ -3,6 +3,7 @@ from view.ProximitySensorView import ProximitySensorView
 from view.RobotViewer import RobotViewer
 
 import pygame as pygame
+from view.view_battery_sensor import ViewBatterySensor
 from view.ViewAudioSensor import ViewAudioSensor
 from view.ViewColorSensor import ViewColorSensor
 from view.view_light_sensor import view_light_sensor
@@ -74,6 +75,15 @@ class VibrabotViewer(RobotViewer):
             696,
             386
         )
+
+        self.battery_sensor_view = self.add_view(
+            "battery_sensor",
+            ViewBatterySensor,
+            396,
+            386
+        )
+
+
 
         left_motor = self.robot.get_component_on_name("left motor")
         if left_motor is None:

@@ -1,15 +1,16 @@
-#ifndef BATERY_H_
-#define BATERY_H_
+#ifndef BATTERY_H_
+#define BATTERY_H_
 
+#include <stdint.h>
 
-
-class Batery
+class Battery
 {
 public:
-    void init();
-
-
+	void init();
+	uint16_t  getCapacity(void);
+	void  setCapacity(uint16_t capacity);
 private:
+	uint16_t capacity;
 };
 
 

@@ -3,6 +3,7 @@
 
 
 #include "led.h"
+#include "battery.h"
 #include "inc/ble.h"
 #include "inc/light_sensor.h"
 #include "inc/ir_sensor.h"
@@ -34,7 +35,7 @@ class Robot{
 		IrSensor left_ir_sensor;
  		IrSensor center_ir_sensor;
   		IrSensor right_ir_sensor;
-
+		Battery battery;
 
 		Microphone microphone;
 		TemperatureSensor temperature_sensor;

@@ -1,6 +1,7 @@
 import queue
 
 from ble.ble import Ble
+from hardware.battery_sensor import BatterySensor
 from hardware.light_sensor import Light_sensor
 from hardware.AudioSensor import AudioSensor
 from hardware.ProximitySensor import ProximitySensor
@@ -37,6 +38,10 @@ class Vibrabot(Robot):
 
         self.motor_left = Motor("left motor")
         self.add_component(self.motor_left)
+
+        self.battery_sensor = BatterySensor("battery_sensor")
+        self.add_component(self.battery_sensor)
+
 
         self.motor_right = Motor("right motor")
         self.add_component(self.motor_right)
@@ -110,23 +115,29 @@ class Vibrabot(Robot):
 
         value = int.from_bytes(package[8:10], byteorder='little')
         f = float(value)/65536
-        f = f * (34.0 / 41.0)
+        #f = f * (34.0 / 41.0)
+        f = f * 2.1
         self.color_sensor.set_intensity(1,f)  
 
         value = int.from_bytes(package[10:12], byteorder='little')
         f = float(value)/65536
-        f = f * (34.0 / 39.0)
+       # f = f * (34.0 / 39.0)
         self.color_sensor.set_intensity(2,f)  
 
         value = int.from_bytes(package[12:14], byteorder='little')
         f = float(value)/65536
+        f = f * 1.5
         self.color_sensor.set_intensity(3,f)  
 
         value = int.from_bytes(package[14:16], byteorder='little')
         f = float(value)/65536
         self.color_sensor.set_intensity(4,f)  
 
-
+        value = int.from_bytes(package[16:18], byteorder='little')
+        f = float(value)/4095
+        print(f)
+        self.battery_sensor.set_capacity(f)  
+ 
 
     def decode_ble_proximity_Package(self, package):
 

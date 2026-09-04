@@ -81,8 +81,8 @@ void Driver_adc::init()
     NRF_SAADC->EVENTS_STARTED = 0;
 
 
-  //  NRF_P0->DIRSET = (1<<14);
-  //  NRF_P0->OUTCLR = (1<<14);
+    NRF_P0->DIRSET = (1<<14);
+    NRF_P0->OUTCLR = (1<<14);
   
 }
 
