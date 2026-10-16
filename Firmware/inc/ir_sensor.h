@@ -3,7 +3,7 @@
 
 
 #include <stdint.h>
-#include "inc/light_sensor.h"
+#include "light_sensor.h"
 
 
 

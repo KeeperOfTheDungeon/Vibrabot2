@@ -4,16 +4,16 @@
 
 #include "led.h"
 #include "battery.h"
-#include "inc/ble.h"
-#include "inc/light_sensor.h"
-#include "inc/ir_sensor.h"
-#include "inc/driver_led.h"
-#include "inc/driver_adc.h"
-#include "inc/driver_motor.h"
-#include "inc/veml3328.h"
-#include "inc/microphone.h"
-#include "inc/TemperatureSensor.h"
-#include "inc/switch.h"
+#include "ble.h"
+#include "light_sensor.h"
+#include "ir_sensor.h"
+#include "driver_led.h"
+#include "driver_adc.h"
+#include "driver_motor.h"
+#include "veml3328.h"
+#include "microphone.h"
+#include "TemperatureSensor.h"
+#include "switch.h"
 
 
 
@@ -46,6 +46,8 @@ typedef struct{
 	uint16_t battery_capacity;
 	uint16_t temperature;
 
+
+
 } Ble_sensor_data_t;
 
 
@@ -72,6 +74,7 @@ class Robot{
 		DriverMotor driver_motor;
 		Switch irSwitch;
 		
+		uint8_t watchdog;
 
 		void decodeBlePackage(uint8_t * dataBlock);
 

@@ -16,11 +16,14 @@
 
 void Robot::init()
 {
+  this->watchdog = 0;
    Serial.println("***********init **********");
+  this->driver_motor.init();
   ble.init();
 
  // microphone.init();
   this->battery.init();
+  this->temperature_sensor.init();
   this->light_sensor_left.init();
   this->light_sensor_right.init();
 
@@ -87,7 +90,7 @@ void Robot::prepareSensorData()
   this->bleSensorData.proximity_sensor_right[0] =  this->proximity_sensor_right.getIntensity(); 
 
    this->bleSensorData.battery_capacity = this->battery.getCapacity();
-   this->bleSensorData.temperature = 6;
+   this->bleSensorData.temperature =  this->temperature_sensor.read();
 }
 
 
@@ -170,8 +173,6 @@ bool Robot::sendFftData()
 
 void Robot::process(void)
 {
- 
-//Serial.println("alive");
 
  
   if (this->microphone.is_magnitudeReady())
@@ -190,11 +191,15 @@ void Robot::process(void)
 
          this->color_sensor.fetchData();
       break;
-      
+    
       case 2:
           this->ProcessAnalogData();
           this->prepareSensorData();
       break;
+
+      case 4:
+        this->temperature_sensor.read();
+        break;
 
     case 5:
         this->irSwitch.off();
@@ -219,6 +224,8 @@ void Robot::process(void)
 
     }
 
+    
+
 
     uint8_t  dataBlock[20];
     uint16_t status = this->ble.receiveDataBlock(dataBlock,20);
@@ -230,6 +237,20 @@ void Robot::process(void)
         //Serial.println(now);
         Serial.printBuffer(dataBlock,3);
         Serial.println("");
+        this->watchdog = 10;
     }
+
+
+  if (watchdog == 0)
+      {
+          this->driver_motor.setMotorValues(0, 0);
+      }
+      else
+      {
+        this->watchdog--;
+      }
+
+
+
 
 }

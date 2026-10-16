@@ -1,31 +1,23 @@
 #include "inc/TemperatureSensor.h"
 #include "nrf.h"
+#include "nrf_soc.h"
 
 
-
+#include <arduino.h>
 void TemperatureSensor::init(void)
 {
  
 }
 
 
-
-void TemperatureSensor::fetch(void)
-{
-    NRF_TEMP->TASKS_START = 1;
-}
-
-
-uint8_t TemperatureSensor::read(void)
+uint16_t TemperatureSensor::read(void)
 {
     int32_t temperature;
 
-    NRF_TEMP->EVENTS_DATARDY = 0;
-
-    temperature = NRF_TEMP->TEMP;
-
-    NRF_TEMP->TASKS_STOP = 1;
-
+    sd_temp_get((int32_t*)&temperature);
+    this->temperature = temperature;
+    Serial.print("temperature :");
+    Serial.println(this->temperature);
     
-    return temperature;
+    return this->temperature;
 }

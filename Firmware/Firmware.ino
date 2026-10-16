@@ -23,18 +23,16 @@ Robot vibrabot;
 
 void setup() {
   Serial.begin(115200); 
-    delay(2000);
-  Serial.println ("init a");
+    
 
-
-
-
-  Serial.println ("complette");
+  
   // Pin als Ausgang für Sicherheit (GPIO)
  // pinMode(9, OUTPUT);  // Wenn D9 wirklich P0.27 ist; sonst anpassen
   pinMode(11, OUTPUT);
+  
   pinMode(12, OUTPUT);
   pinMode(13, OUTPUT);
+  digitalWrite(13, LOW);
   //pinMode(0, INPUT);
  // pinMode(1, OUTPUT);
   // pinMode(0, OUTPUT);
@@ -55,6 +53,7 @@ void setup() {
   
   Serial.println ("init complete");
   delay(1000);
+  digitalWrite(13, HIGH);
 }
 
 

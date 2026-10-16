@@ -8,12 +8,12 @@
 
 class TemperatureSensor{
 	private:
-	
+	uint16_t temperature;
 
 	public:
 	void init(void);
 	void fetch(void);
-	uint8_t read(void);
+	uint16_t read(void);
 	
 };
 #endif

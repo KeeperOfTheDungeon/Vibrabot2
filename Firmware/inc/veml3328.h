@@ -1,7 +1,7 @@
 #ifndef VEML3328_SENSOR_H_
 #define VEML3328_SENSOR_H_
 
-#include "inc/light_sensor.h"
+#include "light_sensor.h"
 
 #define VEML3328_ADDRESS    0x10
 

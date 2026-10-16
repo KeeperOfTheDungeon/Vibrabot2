@@ -2,6 +2,7 @@ import queue
 
 from ble.ble import Ble
 from hardware.battery_sensor import BatterySensor
+from hardware.temperature_sensor import TemperatureSensor
 from hardware.light_sensor import Light_sensor
 from hardware.AudioSensor import AudioSensor
 from hardware.ProximitySensor import ProximitySensor
@@ -41,6 +42,9 @@ class Vibrabot(Robot):
 
         self.battery_sensor = BatterySensor("battery_sensor")
         self.add_component(self.battery_sensor)
+
+        self.temperature_sensor = TemperatureSensor("temperature_sensor")
+        self.add_component(self.temperature_sensor)
 
 
         self.motor_right = Motor("right motor")
@@ -184,6 +188,13 @@ class Vibrabot(Robot):
         print(f)
         self.battery_sensor.set_capacity(f)  
  
+
+        value = int.from_bytes(package[30:32], byteorder='little')
+        f = float(value)*0.25
+        print(f)
+        self.temperature_sensor.set_temperature(f)  
+ 
+
     
 
     def send_motor_data(self):
